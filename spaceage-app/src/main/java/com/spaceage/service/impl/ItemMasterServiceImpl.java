@@ -114,7 +114,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	@Override
 	public List<Item_masterDTO> getAllItems() {
 		try {
-			String sql = "select i.item_id, i.lot_ref_no, c.customer_code, c.name, c.customer_location, p.project_code, p.project_name, c.designation, i.createdDate, c.country from item_master i join project_master p ON i.project_code  = p.project_id join customer_master c ON i.customer_code  = c.customer_id";
+			String sql = "select i.item_id, i.lot_ref_no, c.customer_code, c.name, c.customer_location, p.project_code, p.project_name,  c.designation, i.createdDate, c.country from item_master i join project_master p ON i.project_code  = p.project_id join customer_master c ON i.customer_code  = c.customer_id";
 
 			List<Item_masterDTO> dto = jdbcTemplate.query(
 			        sql,
