@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.spaceage.model.Bom;
 import com.spaceage.model.Country;
 import com.spaceage.model.Customer;
 import com.spaceage.model.Item;
@@ -49,4 +50,6 @@ public interface ItemMasterService {
 	List<PackagingType> getPackagingType();
 
 	List<Country> getCountry();
+
+	List<Bom> getBomById(String id);
 }

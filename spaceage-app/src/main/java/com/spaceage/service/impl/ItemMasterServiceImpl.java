@@ -6,7 +6,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -231,6 +234,50 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 		}
 		return null;
 		
+	}
+
+
+
+	@Override
+	public List<Bom> getBomById(String id) {
+		List<Bom> plist = new ArrayList<>(); 
+		try {
+			String sql = "select * from tblbom where item_master_id=?";
+			List<Map<String, Object>> bomList = jdbcTemplate.queryForList(sql, id);
+			bomList.forEach(m -> {
+				Bom b = new Bom();	
+				b.setBomId((int) m.get("BOM_ID"));
+				b.setItemMasterId((int) m.get("item_master_id"));
+				b.setPartNo((String) m.get("PART_NO"));
+				b.setPartDescription((String) m.get("PART_DESCRIPTION"));
+				b.setVersion((String) m.get("Version"));
+				b.setStLoction((String) m.get("ST_LOCATION"));
+				b.setValidity((String) m.get("VALIDITY"));
+				b.setCatDescription((String) m.get("CAT_Description"));
+				b.setQtyRequired((String) m.get("QTY_REQUIRED"));
+				b.setQtyLot((String) m.get("Qty_Lot"));
+				b.setPrimaryNo((String) m.get("Primary_NO"));
+				b.setSecondaryNo((String) m.get("Secondary_NO"));
+				b.setPackCode((String) m.get("Pack_Code"));
+				b.setPackQty((String) m.get("Pack_Qty"));
+				b.setPackingGroup((String) m.get("Packing_Group"));
+				b.setTotalNoOfPackingGroup((String) m.get("Total_No_of_Packing_Group"));
+				b.setMixGroup((String) m.get("Mix_Group"));
+				b.setMix((String) m.get("Mix"));
+				b.setBomNo((String) m.get("BomNo"));
+				b.setCaseMap((String) m.get("Case_map"));
+				b.setImages((String) m.get("Images"));
+				b.setCreatedBy((int) m.get("CreatedBy"));
+				b.setCreatedDate((Date) m.get("CreatedDate"));
+				b.setModifiedBy((int) m.get("ModifiedBy"));
+				b.setModifiedDate((Date) m.get("ModifiedDate"));
+				b.setStatus((boolean) m.get("Status"));
+				plist.add(b);
+			}); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return plist;
 	}
 
 }

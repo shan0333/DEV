@@ -54,7 +54,11 @@ public class Bom {
 
 	private Date modifiedDate;
 
-	private int status;
+	private boolean status;
+
+	private String barCodeNo;
+
+	private String bomSlNo;
 
 	public Bom() {
 		super();
@@ -287,12 +291,28 @@ public class Bom {
 		this.modifiedDate = modifiedDate;
 	}
 
-	public int getStatus() {
+	public boolean getStatus() {
 		return status;
 	}
 
-	public void setStatus(int status) {
+	public void setStatus(boolean status) {
 		this.status = status;
+	}
+
+	public String getBomSlNo() {
+		return bomSlNo;
+	}
+
+	public void setBomSlNo(String bomSlNo) {
+		this.bomSlNo = bomSlNo;
+	}
+
+	public String getBarCodeNo() {
+		return barCodeNo;
+	}
+
+	public void setBarCodeNo(String barCodeNo) {
+		this.barCodeNo = barCodeNo;
 	}
 
 }
