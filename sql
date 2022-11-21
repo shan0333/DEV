@@ -339,3 +339,21 @@ delete from tblbom
 
 
 select i.lot_ref_no, c.customer_code, c.name, c.customer_location, p.project_code, p.project_name, c.designation, i.createdDate from item_master i join project_master p ON i.project_code  = p.project_id join customer_master c ON i.customer_code  = c.customer_id
+
+CREATE TABLE `item_master` (
+  `item_id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_code` int(11) DEFAULT NULL,
+  `project_code` int(11) DEFAULT NULL,
+  `org_country_id` int(11) DEFAULT NULL,
+  `packing_type` int(11) DEFAULT NULL,
+  `lot_size` varchar(100) DEFAULT NULL,
+  `customer_login` int(11) DEFAULT NULL,
+  `lot_ref_no` varchar(100) DEFAULT NULL,
+  `containers` varchar(100) DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `CreatedDate` datetime DEFAULT NULL,
+  `ModifiedBy` int(11) DEFAULT NULL,
+  `ModifiedDate` datetime DEFAULT NULL,
+  `Status` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`item_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
