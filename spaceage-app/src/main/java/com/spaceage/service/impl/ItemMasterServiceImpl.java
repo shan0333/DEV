@@ -43,7 +43,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	public void save(MultipartFile file, Integer itemId) {
+	public void save(MultipartFile file, long itemId) {
 		try {
 			List<Bom> fileData = CSVHelper.csvToBom(file.getInputStream(), itemId);
 
@@ -149,7 +149,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 		return it;
 	}
 
-	public Integer save(Item itemJson) {
+	public long save(Item itemJson) {
 		KeyHolder holder = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			@Override
@@ -169,9 +169,10 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 			}
 		}, holder);
 
-		// holder.getKey().intValue();
-
-		return (Integer) holder.getKeyList().get(0).get("item_id");
+		return holder.getKey().intValue();
+		
+		/* FOR POSTGRE*/
+		//return (Integer) holder.getKeyList().get(0).get("item_id");
 	}
 
 	@Override
