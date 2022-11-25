@@ -32,6 +32,8 @@ import com.spaceage.model.Item;
 import com.spaceage.model.Item_masterDTO;
 import com.spaceage.model.PackagingType;
 import com.spaceage.model.Project;
+import com.spaceage.model.RequestDTO;
+import com.spaceage.model.ResponseDTO;
 import com.spaceage.service.ItemMasterService;
 
 @Repository
@@ -93,16 +95,32 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	}
 
 	@Override
-	public List<Item_masterDTO> getAllItems() {
+	public ResponseDTO getAllItems(RequestDTO request) {
+		ResponseDTO response = new ResponseDTO();
+		if (request.getSortByColumn().isEmpty()) {
+			request.setSortByColumn("item_id");
+		}
 		try {
-			List<Item_masterDTO> dto = jdbcTemplate.query(env.getProperty("select_all_item"),
+			String defaultQuery = getDefaultQery(request); 
+			List<Item_masterDTO> dto = jdbcTemplate.query(env.getProperty("select_all_item")+ defaultQuery,
 					new BeanPropertyRowMapper<Item_masterDTO>(Item_masterDTO.class));
 
-			return dto;
+			
+			response.setData(dto);
+			response.setTotalElements(dto.size());
+			if(!response.getData().isEmpty()) {
+				response.setNoData(false);
+			}
+			return response;
 		} catch (Exception e) {
-			e.printStackTrace();
+			response.setMessage(e.getMessage());
 		}
 		return null;
+	}
+
+	private String getDefaultQery(RequestDTO request) {
+		return (String) " order by " +request.getSortByColumn() 
+		+ " "+request.getSortByMode() +" LIMIT "+ request.getLimit()+" OFFSET "+ request.getOffset();
 	}
 
 	@Override
@@ -151,24 +169,23 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 
 	public long save(Item itemJson) {
 		KeyHolder holder = new GeneratedKeyHolder();
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-				PreparedStatement ps = connection.prepareStatement(env.getProperty("insert_item"),
-						Statement.RETURN_GENERATED_KEYS);
-				ps.setLong(1, itemJson.getCustomer_code());
-				ps.setLong(2, itemJson.getProject_code());
-				ps.setLong(3, itemJson.getOrg_country_id());
-				ps.setLong(4, itemJson.getPacking_type());
-				ps.setString(5, itemJson.getLot_size());
-				ps.setLong(6, itemJson.getCustomer_login());
-				ps.setString(7, itemJson.getLot_ref_no());
-				ps.setString(8, itemJson.getContainers().toString());
-				ps.setInt(9, 1);
-				return ps;
-			}
-		}, holder);
-
+			jdbcTemplate.update(new PreparedStatementCreator() {
+				@Override
+				public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+					PreparedStatement ps = connection.prepareStatement(env.getProperty("insert_item"),
+							Statement.RETURN_GENERATED_KEYS);
+					ps.setLong(1, itemJson.getCustomer_code());
+					ps.setLong(2, itemJson.getProject_code());
+					ps.setLong(3, itemJson.getOrg_country_id());
+					ps.setLong(4, itemJson.getPacking_type());
+					ps.setString(5, itemJson.getLot_size());
+					ps.setLong(6, itemJson.getCustomer_login());
+					ps.setString(7, itemJson.getLot_ref_no());
+					ps.setString(8, itemJson.getContainers().toString());
+					ps.setInt(9, 1);
+					return ps;
+				}
+			}, holder);
 		return holder.getKey().intValue();
 		
 		/* FOR POSTGRE*/

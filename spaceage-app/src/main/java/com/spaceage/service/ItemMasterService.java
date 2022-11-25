@@ -10,9 +10,10 @@ import com.spaceage.model.Bom;
 import com.spaceage.model.Country;
 import com.spaceage.model.Customer;
 import com.spaceage.model.Item;
-import com.spaceage.model.Item_masterDTO;
 import com.spaceage.model.PackagingType;
 import com.spaceage.model.Project;
+import com.spaceage.model.RequestDTO;
+import com.spaceage.model.ResponseDTO;
 
 @Service
 public interface ItemMasterService {
@@ -39,7 +40,7 @@ public interface ItemMasterService {
 
 	void save(MultipartFile file, long itemId);
 
-	List<Item_masterDTO> getAllItems();
+	ResponseDTO getAllItems(RequestDTO request);
 
 	List<Customer> getCustomer();
 
