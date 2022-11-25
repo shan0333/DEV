@@ -339,3 +339,53 @@ delete from tblbom
 
 
 select i.lot_ref_no, c.customer_code, c.name, c.customer_location, p.project_code, p.project_name, c.designation, i.createdDate from item_master i join project_master p ON i.project_code  = p.project_id join customer_master c ON i.customer_code  = c.customer_id
+
+CREATE TABLE `item_master` (
+  `item_id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_code` int(11) DEFAULT NULL,
+  `project_code` int(11) DEFAULT NULL,
+  `org_country_id` int(11) DEFAULT NULL,
+  `packing_type` int(11) DEFAULT NULL,
+  `lot_size` varchar(100) DEFAULT NULL,
+  `customer_login` int(11) DEFAULT NULL,
+  `lot_ref_no` varchar(100) DEFAULT NULL,
+  `containers` varchar(100) DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `CreatedDate` datetime DEFAULT NULL,
+  `ModifiedBy` int(11) DEFAULT NULL,
+  `ModifiedDate` datetime DEFAULT NULL,
+  `Status` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`item_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+-- spaceage.tblbom definition
+
+CREATE TABLE `tblbom` (
+  `BOM_ID` int(11) NOT NULL AUTO_INCREMENT,
+  `item_master_id` int(11) DEFAULT NULL,
+  `PART_NO` varchar(100) DEFAULT NULL,
+  `PART_DESCRIPTION` varchar(100) DEFAULT NULL,
+  `Version` varchar(100) DEFAULT NULL,
+  `ST_LOCATION` varchar(100) DEFAULT NULL,
+  `VALIDITY` varchar(100) DEFAULT NULL,
+  `CAT_Description` varchar(100) DEFAULT NULL,
+  `QTY_REQUIRED` varchar(100) DEFAULT NULL,
+  `Qty_Lot` varchar(100) DEFAULT NULL,
+  `Primary_NO` varchar(100) DEFAULT NULL,
+  `Secondary_NO` varchar(100) DEFAULT NULL,
+  `Pack_Code` varchar(1000) DEFAULT NULL,
+  `Pack_Qty` varchar(100) DEFAULT NULL,
+  `Packing_Group` varchar(100) DEFAULT NULL,
+  `Total_No_of_Packing_Group` varchar(100) DEFAULT NULL,
+  `Mix_Group` varchar(100) DEFAULT NULL,
+  `Mix` varchar(100) DEFAULT NULL,
+  `BomNo` varchar(100) DEFAULT NULL,
+  `Case_map` varchar(100) DEFAULT NULL,
+  `Images` varchar(100) DEFAULT NULL,
+  `CreatedBy` int(11) DEFAULT NULL,
+  `CreatedDate` datetime DEFAULT NULL,
+  `ModifiedBy` int(11) DEFAULT NULL,
+  `ModifiedDate` datetime DEFAULT NULL,
+  `Status` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`BOM_ID`)
+) ENGINE=MyISAM AUTO_INCREMENT=1745 DEFAULT CHARSET=latin1;
