@@ -12,9 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
 
-import com.spaceage.model.Customer;
 import com.spaceage.model.Project;
-import com.spaceage.service.CustomerService;
 import com.spaceage.service.ProjectService;
 
 @Repository
