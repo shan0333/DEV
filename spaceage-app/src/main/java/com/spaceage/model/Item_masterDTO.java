@@ -14,6 +14,7 @@ public class Item_masterDTO {
 	private String designation;
 	private Date createdDate;
 	private String country;
+	private Integer totalElements;
 
 	public String getLot_ref_no() {
 		return lot_ref_no;
@@ -93,6 +94,14 @@ public class Item_masterDTO {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public Integer getTotalElements() {
+		return totalElements;
+	}
+
+	public void setTotalElements(Integer totalElements) {
+		this.totalElements = totalElements;
 	}
 
 	

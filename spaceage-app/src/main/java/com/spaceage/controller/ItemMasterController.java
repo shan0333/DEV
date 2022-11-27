@@ -21,10 +21,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import com.spaceage.csv.CSVHelper;
 import com.spaceage.model.Country;
-import com.spaceage.model.Customer;
 import com.spaceage.model.Item;
 import com.spaceage.model.PackagingType;
-import com.spaceage.model.Project;
 import com.spaceage.model.RequestDTO;
 import com.spaceage.model.ResponseDTO;
 import com.spaceage.service.ItemMasterService;
@@ -46,9 +44,9 @@ public class ItemMasterController {
 			try {
 				itemJson = itemService.getJson(item);
 
-				long lotRefNo = itemService.save(itemJson);
+				itemService.save(itemJson);
 
-				itemService.save(file, lotRefNo);
+				itemService.save(file, itemJson.getLot_ref_no());
 
 				message = "Uploaded the file successfully: " + file.getOriginalFilename();
 
@@ -74,7 +72,7 @@ public class ItemMasterController {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(message));
 	}
 
-	@GetMapping("/item")
+	@PostMapping("/item")
 	public ResponseEntity<ResponseDTO> getAllItems(@RequestBody RequestDTO request) {
 		try {
 			ResponseDTO item = itemService.getAllItems(request);
@@ -84,36 +82,6 @@ public class ItemMasterController {
 			}
 
 			return new ResponseEntity<>(item, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@GetMapping("/customer")
-	public ResponseEntity<List<Customer>> getCustomer() {
-		try {
-			List<Customer> cus = itemService.getCustomer();
-
-			if (cus.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-
-			return new ResponseEntity<>(cus, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@GetMapping("/project")
-	public ResponseEntity<List<Project>> getProject() {
-		try {
-			List<Project> pro = itemService.getProject();
-
-			if (pro.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-
-			return new ResponseEntity<>(pro, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}

@@ -45,16 +45,16 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	public void save(MultipartFile file, long itemId) {
+	public void save(MultipartFile file, String lotRefNo) {
 		try {
-			List<Bom> fileData = CSVHelper.csvToBom(file.getInputStream(), itemId);
+			List<Bom> fileData = CSVHelper.csvToBom(file.getInputStream(), lotRefNo);
 
 			jdbcTemplate.batchUpdate(env.getProperty("insert_bom"), new BatchPreparedStatementSetter() {
 
 				@Override
 				public void setValues(PreparedStatement pStmt, int i) throws SQLException {
 					Bom bom = fileData.get(i);
-					pStmt.setLong(1, bom.getItemMasterId());
+					pStmt.setString(1, bom.getLot_ref_no());
 					pStmt.setString(2, bom.getPartNo());
 					pStmt.setString(3, bom.getPartDescription());
 					pStmt.setString(4, bom.getVersion());
@@ -99,20 +99,26 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 		ResponseDTO response = new ResponseDTO();
 		if (request.getSortByColumn().isEmpty()) {
 			request.setSortByColumn("item_id");
+			request.setSortByMode("desc");
 		}
 		try {
 			String defaultQuery = getDefaultQery(request); 
-			List<Item_masterDTO> dto = jdbcTemplate.query(env.getProperty("select_all_item")+ defaultQuery,
-					new BeanPropertyRowMapper<Item_masterDTO>(Item_masterDTO.class));
-
-			
+			List<Item_masterDTO> dto = null;
+			try {
+				dto = jdbcTemplate.query(env.getProperty("select_all_item")+ defaultQuery,
+						new BeanPropertyRowMapper<Item_masterDTO>(Item_masterDTO.class));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			response.setData(dto);
-			response.setTotalElements(dto.size());
+			response.setTotalElements(dto.get(0).getTotalElements());
 			if(!response.getData().isEmpty()) {
 				response.setNoData(false);
 			}
 			return response;
 		} catch (Exception e) {
+			e.getMessage();
 			response.setMessage(e.getMessage());
 		}
 		return null;
@@ -123,33 +129,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 		+ " "+request.getSortByMode() +" LIMIT "+ request.getLimit()+" OFFSET "+ request.getOffset();
 	}
 
-	@Override
-	public List<Customer> getCustomer() {
-		try {
-			List<Customer> customers = jdbcTemplate.query(env.getProperty("select_customer"),
-					new BeanPropertyRowMapper<Customer>(Customer.class));
-
-			return customers;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-
-	}
-
-	@Override
-	public List<Project> getProject() {
-		try {
-			List<Project> project = jdbcTemplate.query(env.getProperty("select_project"),
-					new BeanPropertyRowMapper<Project>(Project.class));
-
-			return project;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-
-	}
+	
 
 	@Override
 	public InputStream load() {
@@ -225,11 +205,11 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 		List<Bom> plist = new ArrayList<>();
 		try {
 			List<Map<String, Object>> bomList = jdbcTemplate.queryForList(env.getProperty("select_bom"),
-					Integer.parseInt(id));
+					id);
 			bomList.forEach(m -> {
 				Bom b = new Bom();
 				b.setBomId((int) m.get("BOM_ID"));
-				b.setItemMasterId((int) m.get("item_master_id"));
+				b.setLot_ref_no((String) m.get("lot_ref_no"));
 				b.setPartNo((String) m.get("PART_NO"));
 				b.setPartDescription((String) m.get("PART_DESCRIPTION"));
 				b.setVersion((String) m.get("Version"));
@@ -260,6 +240,12 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 			e.printStackTrace();
 		}
 		return plist;
+	}
+
+	@Override
+	public void createBom(Bom bom) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

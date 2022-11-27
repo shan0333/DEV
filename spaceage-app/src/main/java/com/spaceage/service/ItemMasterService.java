@@ -17,34 +17,14 @@ import com.spaceage.model.ResponseDTO;
 
 @Service
 public interface ItemMasterService {
-	
-//	int save(Tutorial book);
-//
-//	int update(Tutorial book);
-//
-//	Tutorial findById(Long id);
-//
-//	int deleteById(Long id);
-//
-//	List<Tutorial> findAll();
-//
-//	List<Tutorial> findByPublished(boolean published);
-//
-//	List<Tutorial> findByTitleContaining(String title);
-//
-//	int deleteAll();
 
 	Item getJson(String item);
 
 	long save(Item itemJson);
 
-	void save(MultipartFile file, long itemId);
+	void save(MultipartFile file, String itemId);
 
 	ResponseDTO getAllItems(RequestDTO request);
-
-	List<Customer> getCustomer();
-
-	List<Project> getProject();
 
 	InputStream load();
 
@@ -53,4 +33,7 @@ public interface ItemMasterService {
 	List<Country> getCountry();
 
 	List<Bom> getBomById(String id);
+
+	void createBom(Bom bom);
+
 }

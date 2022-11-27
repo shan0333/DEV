@@ -35,7 +35,7 @@ public class CSVHelper {
     return false;
   }
 
-  public static List<Bom> csvToBom(InputStream is, long itemId) {
+  public static List<Bom> csvToBom(InputStream is, String lotRefNo) {
     try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
         CSVParser csvParser = new CSVParser(fileReader,
             CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());) {
@@ -46,7 +46,7 @@ public class CSVHelper {
 
       for (CSVRecord csvRecord : csvRecords) {
     	  Bom bom = new Bom(
-    		  itemId,	  
+    		  lotRefNo,	  
               csvRecord.get("PART_NO"),
               csvRecord.get("PART_DESCRIPTION"),
               csvRecord.get("Version"),

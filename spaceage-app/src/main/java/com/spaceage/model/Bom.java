@@ -6,7 +6,7 @@ public class Bom {
 
 	private long bomId;
 
-	private long itemMasterId;
+	private String lot_ref_no;
 
 	private String partNo;
 
@@ -64,12 +64,12 @@ public class Bom {
 		super();
 	}
 
-	public Bom(long itemMasterId, String partNo, String partDescription, String version, String stLoction,
+	public Bom(String lot_ref_no, String partNo, String partDescription, String version, String stLoction,
 			String validity, String catDescription, String qtyRequired, String qtyLot, String primaryNo,
 			String secondaryNo, String packCode, String packQty, String packingGroup, String totalNoOfPackingGroup,
 			String mixGroup, String mix, String bomNo, String caseMap, String images) {
 		super();
-		this.itemMasterId = itemMasterId;
+		this.lot_ref_no = lot_ref_no;
 		this.partNo = partNo;
 		this.partDescription = partDescription;
 		this.version = version;
@@ -97,14 +97,6 @@ public class Bom {
 
 	public void setBomId(long bomId) {
 		this.bomId = bomId;
-	}
-
-	public long getItemMasterId() {
-		return itemMasterId;
-	}
-
-	public void setItemMasterId(long itemMasterId) {
-		this.itemMasterId = itemMasterId;
 	}
 
 	public String getPartNo() {
@@ -313,6 +305,14 @@ public class Bom {
 
 	public void setBarCodeNo(String barCodeNo) {
 		this.barCodeNo = barCodeNo;
+	}
+
+	public String getLot_ref_no() {
+		return lot_ref_no;
+	}
+
+	public void setLot_ref_no(String lot_ref_no) {
+		this.lot_ref_no = lot_ref_no;
 	}
 
 }
