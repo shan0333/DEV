@@ -29,7 +29,7 @@ import com.spaceage.service.ItemMasterService;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @Controller
-@RequestMapping("/api/csv")
+@RequestMapping("/api")
 public class ItemMasterController {
 
 	@Autowired
@@ -72,7 +72,7 @@ public class ItemMasterController {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(message));
 	}
 
-	@PostMapping("/item")
+	@PostMapping("/item-master")
 	public ResponseEntity<ResponseDTO> getAllItems(@RequestBody RequestDTO request) {
 		try {
 			ResponseDTO item = itemService.getAllItems(request);

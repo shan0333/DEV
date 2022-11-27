@@ -18,7 +18,7 @@ import com.spaceage.service.ItemMasterService;
 
 @CrossOrigin("http://localhost:4200")
 @Controller
-@RequestMapping("/api/csv")
+@RequestMapping("/api")
 public class PartListController {
 
 	@Autowired

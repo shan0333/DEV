@@ -8,10 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.spaceage.model.Bom;
 import com.spaceage.model.Country;
-import com.spaceage.model.Customer;
 import com.spaceage.model.Item;
 import com.spaceage.model.PackagingType;
-import com.spaceage.model.Project;
 import com.spaceage.model.RequestDTO;
 import com.spaceage.model.ResponseDTO;
 
