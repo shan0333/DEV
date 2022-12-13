@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +19,10 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -100,10 +106,10 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 			request.setSortByMode("desc");
 		}
 		try {
-			String defaultQuery = getDefaultQery(request); 
+			String defaultQuery = getDefaultQery(request);
 			List<Item_masterDTO> dto = null;
 			try {
-				dto = jdbcTemplate.query(env.getProperty("select_all_item")+ defaultQuery,
+				dto = jdbcTemplate.query(env.getProperty("select_all_item") + defaultQuery,
 						new BeanPropertyRowMapper<Item_masterDTO>(Item_masterDTO.class));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -111,7 +117,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 			}
 			response.setData(dto);
 			response.setTotalElements(dto.get(0).getTotalElements());
-			if(!response.getData().isEmpty()) {
+			if (!response.getData().isEmpty()) {
 				response.setNoData(false);
 			}
 			return response;
@@ -123,11 +129,9 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	}
 
 	private String getDefaultQery(RequestDTO request) {
-		return (String) " order by " +request.getSortByColumn() 
-		+ " "+request.getSortByMode() +" LIMIT "+ request.getLimit()+" OFFSET "+ request.getOffset();
+		return (String) " order by " + request.getSortByColumn() + " " + request.getSortByMode() + " LIMIT "
+				+ request.getLimit() + " OFFSET " + request.getOffset();
 	}
-
-	
 
 	@Override
 	public InputStream load() {
@@ -147,27 +151,27 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 
 	public long save(Item itemJson) {
 		KeyHolder holder = new GeneratedKeyHolder();
-			jdbcTemplate.update(new PreparedStatementCreator() {
-				@Override
-				public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-					PreparedStatement ps = connection.prepareStatement(env.getProperty("insert_item"),
-							Statement.RETURN_GENERATED_KEYS);
-					ps.setLong(1, itemJson.getCustomer_code());
-					ps.setLong(2, itemJson.getProject_code());
-					ps.setLong(3, itemJson.getOrg_country_id());
-					ps.setLong(4, itemJson.getPacking_type());
-					ps.setString(5, itemJson.getLot_size());
-					ps.setLong(6, itemJson.getCustomer_login());
-					ps.setString(7, itemJson.getLot_ref_no());
-					ps.setString(8, itemJson.getContainers().toString());
-					ps.setInt(9, 1);
-					return ps;
-				}
-			}, holder);
+		jdbcTemplate.update(new PreparedStatementCreator() {
+			@Override
+			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+				PreparedStatement ps = connection.prepareStatement(env.getProperty("insert_item"),
+						Statement.RETURN_GENERATED_KEYS);
+				ps.setLong(1, itemJson.getCustomer_code());
+				ps.setLong(2, itemJson.getProject_code());
+				ps.setLong(3, itemJson.getOrg_country_id());
+				ps.setLong(4, itemJson.getPacking_type());
+				ps.setString(5, itemJson.getLot_size());
+				ps.setLong(6, itemJson.getCustomer_login());
+				ps.setString(7, itemJson.getLot_ref_no());
+				ps.setString(8, itemJson.getContainers().toString());
+				ps.setInt(9, 1);
+				return ps;
+			}
+		}, holder);
 		return holder.getKey().intValue();
-		
-		/* FOR POSTGRE*/
-		//return (Integer) holder.getKeyList().get(0).get("item_id");
+
+		/* FOR POSTGRE */
+		// return (Integer) holder.getKeyList().get(0).get("item_id");
 	}
 
 	@Override
@@ -202,8 +206,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	public List<Bom> getBomById(String id) {
 		List<Bom> plist = new ArrayList<>();
 		try {
-			List<Map<String, Object>> bomList = jdbcTemplate.queryForList(env.getProperty("select_bom"),
-					id);
+			List<Map<String, Object>> bomList = jdbcTemplate.queryForList(env.getProperty("select_bom"), id);
 			bomList.forEach(m -> {
 				Bom b = new Bom();
 				b.setBomId((int) m.get("BOM_ID"));
@@ -232,6 +235,25 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 				b.setModifiedBy((int) m.get("ModifiedBy"));
 				b.setModifiedDate((Date) m.get("ModifiedDate"));
 				b.setStatus((boolean) m.get("Status"));
+				
+				if((int)m.get("pick_label_scan") == 0) {
+					b.setLabelStatus("Pending");
+					b.setColorCode("#FFFF00");
+				}else if((int)m.get("part_label_scan") > 0 && (int)m.get("part_label_scan") < Integer.parseInt(b.getTotalNoOfPackingGroup())) {
+					b.setLabelStatus("Work In Progress");
+					b.setColorCode("#00FF00");
+				}else if((int)m.get("pick_label_scan") == 2){
+						b.setLabelStatus("Received");
+						b.setColorCode("#964B00");	
+				}else if((int)m.get("part_label_scan") == Integer.parseInt(b.getTotalNoOfPackingGroup())) {
+					b.setLabelStatus("Packed");
+					b.setColorCode("#0000FF");	
+				}else if((int)m.get("pick_label_scan") == 1) {
+					b.setLabelStatus("Acknowledge");
+					b.setColorCode("#FFA500");
+				}
+				b.setEnablePartLabel((int)m.get("pick_label_scan") > 0);
+				b.setTotalPartScanned((int)m.get("part_label_scan")+"/"+b.getTotalNoOfPackingGroup());
 				plist.add(b);
 			});
 		} catch (Exception e) {
@@ -243,7 +265,41 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	@Override
 	public void createBom(Bom bom) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public void gunScanner(String barcode, String value) {
+		try {
+			SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("scan_pick_label");
+
+			Map<String, Object> param = new HashMap<String, Object>();
+			param.put("part_no_in", barcode);
+			param.put("Scan_Type_in", value);
+			//param.put("lot_RefNo_in", scan.lot);
+			SqlParameterSource in = new MapSqlParameterSource().addValues(param);
+			Map<String, Object> out = jdbcCall.execute(in);
+			System.out.println(out.toString());
+		} catch (Exception e) {
+e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	public List<String> getLotRefNo() {
+		try {
+			List<String> type = jdbcTemplate.query(env.getProperty("select_lotRefNo"), new RowMapper<String>() {
+				public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+					return rs.getString(1);
+				}
+			});
+
+			return type;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

@@ -34,4 +34,8 @@ public interface ItemMasterService {
 
 	void createBom(Bom bom);
 
+	void gunScanner(String id, String value);
+
+	List<String> getLotRefNo();
+
 }

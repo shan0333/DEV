@@ -10,14 +10,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.spaceage.csv.CSVHelper;
 import com.spaceage.model.Country;
@@ -27,9 +26,8 @@ import com.spaceage.model.RequestDTO;
 import com.spaceage.model.ResponseDTO;
 import com.spaceage.service.ItemMasterService;
 
-@CrossOrigin(origins = "http://localhost:4200")
-@Controller
-@RequestMapping("/api")
+@CrossOrigin
+@RestController
 public class ItemMasterController {
 
 	@Autowired
@@ -77,12 +75,13 @@ public class ItemMasterController {
 		try {
 			ResponseDTO item = itemService.getAllItems(request);
 
-			if (item.getData().isEmpty()) {
+			if (item == null ) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
 			return new ResponseEntity<>(item, HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -123,5 +122,21 @@ public class ItemMasterController {
 
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
 				.contentType(MediaType.parseMediaType("application/csv")).body(file);
+	}
+	
+	@GetMapping("/lotrefno")
+	public ResponseEntity<List<String>> getLotRefNo() {
+		try {
+			List<String> lotRefNo = itemService.getLotRefNo();
+
+			if (lotRefNo == null ) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(lotRefNo, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

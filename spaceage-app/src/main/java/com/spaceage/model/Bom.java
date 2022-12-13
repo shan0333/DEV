@@ -59,6 +59,18 @@ public class Bom {
 	private String barCodeNo;
 
 	private String bomSlNo;
+	
+	private String labelStatus;
+	
+	private String colorCode;
+	
+	private String pick_label_scan;
+	
+	private String part_label_scan;
+	
+	private boolean enablePartLabel;
+	
+	private String totalPartScanned;
 
 	public Bom() {
 		super();
@@ -315,4 +327,53 @@ public class Bom {
 		this.lot_ref_no = lot_ref_no;
 	}
 
+	public String getLabelStatus() {
+		return labelStatus;
+	}
+
+	public void setLabelStatus(String labelStatus) {
+		this.labelStatus = labelStatus;
+	}
+
+	public String getColorCode() {
+		return colorCode;
+	}
+
+	public void setColorCode(String colorCode) {
+		this.colorCode = colorCode;
+	}
+
+	public String getPick_label_scan() {
+		return pick_label_scan;
+	}
+
+	public void setPick_label_scan(String pick_label_scan) {
+		this.pick_label_scan = pick_label_scan;
+	}
+
+	public String getPart_label_scan() {
+		return part_label_scan;
+	}
+
+	public void setPart_label_scan(String part_label_scan) {
+		this.part_label_scan = part_label_scan;
+	}
+
+	public boolean isEnablePartLabel() {
+		return enablePartLabel;
+	}
+
+	public void setEnablePartLabel(boolean enablePartLabel) {
+		this.enablePartLabel = enablePartLabel;
+	}
+
+	public String getTotalPartScanned() {
+		return totalPartScanned;
+	}
+
+	public void setTotalPartScanned(String totalPartScanned) {
+		this.totalPartScanned = totalPartScanned;
+	}
+
+	
 }
