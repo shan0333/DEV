@@ -71,6 +71,10 @@ public class Bom {
 	private boolean enablePartLabel;
 	
 	private String totalPartScanned;
+	
+	private String netWeight;
+	
+	private String grossWeight;
 
 	public Bom() {
 		super();
@@ -373,6 +377,22 @@ public class Bom {
 
 	public void setTotalPartScanned(String totalPartScanned) {
 		this.totalPartScanned = totalPartScanned;
+	}
+
+	public String getNetWeight() {
+		return netWeight;
+	}
+
+	public void setNetWeight(String netWeight) {
+		this.netWeight = netWeight;
+	}
+
+	public String getGrossWeight() {
+		return grossWeight;
+	}
+
+	public void setGrossWeight(String grossWeight) {
+		this.grossWeight = grossWeight;
 	}
 
 	

@@ -1,19 +1,26 @@
 package com.spaceage.model;
 
-public class Item_masterDTO {
-	private String item_id;
+public class SummaryDTO {
+
+	private String type;
 	private String lot_ref_no;
 	private String customer_code;
 	private String name;
 	private String customer_location;
 	private String project_code;
-
 	private String project_name;
-	private String designation;
-	private String createdDate;
+	private String lot_size;
 	private String country;
-	private Integer totalElements;
-	private String report;
+	private String designation;
+	private String destination_location;
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 
 	public String getLot_ref_no() {
 		return lot_ref_no;
@@ -63,28 +70,12 @@ public class Item_masterDTO {
 		this.project_name = project_name;
 	}
 
-	public String getDesignation() {
-		return designation;
+	public String getLot_size() {
+		return lot_size;
 	}
 
-	public void setDesignation(String designation) {
-		this.designation = designation;
-	}
-
-	public String getCreatedDate() {
-		return createdDate;
-	}
-
-	public void setCreatedDate(String createdDate) {
-		this.createdDate = createdDate;
-	}
-
-	public String getItem_id() {
-		return item_id;
-	}
-
-	public void setItem_id(String item_id) {
-		this.item_id = item_id;
+	public void setLot_size(String lot_size) {
+		this.lot_size = lot_size;
 	}
 
 	public String getCountry() {
@@ -95,22 +86,20 @@ public class Item_masterDTO {
 		this.country = country;
 	}
 
-	public Integer getTotalElements() {
-		return totalElements;
+	public String getDesignation() {
+		return designation;
 	}
 
-	public void setTotalElements(Integer totalElements) {
-		this.totalElements = totalElements;
+	public void setDesignation(String designation) {
+		this.designation = designation;
 	}
 
-	public String getReport() {
-		return report;
+	public String getDestination_location() {
+		return destination_location;
 	}
 
-	public void setReport(String report) {
-		this.report = report;
+	public void setDestination_location(String destination_location) {
+		this.destination_location = destination_location;
 	}
-
-	
 
 }

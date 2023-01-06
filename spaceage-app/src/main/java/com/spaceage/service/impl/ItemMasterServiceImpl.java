@@ -1,7 +1,7 @@
 package com.spaceage.service.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,14 +31,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spaceage.csv.CSVHelper;
 import com.spaceage.model.Bom;
+import com.spaceage.model.Case;
 import com.spaceage.model.Country;
 import com.spaceage.model.Item;
 import com.spaceage.model.Item_masterDTO;
 import com.spaceage.model.PackagingType;
 import com.spaceage.model.RequestDTO;
 import com.spaceage.model.ResponseDTO;
+import com.spaceage.model.SummaryDTO;
+import com.spaceage.report.CSVHelper;
+import com.spaceage.report.ExcelHelper;
 import com.spaceage.service.ItemMasterService;
 
 @Repository
@@ -89,12 +93,18 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 					return fileData.size();
 				}
 			});
+		
+		} catch (UncategorizedSQLException e) {
+			
 		} catch (IOException e) {
+			deleteItemMaster(lotRefNo);
+			e.printStackTrace();
 			throw new RuntimeException("fail to store csv data: " + e.getMessage());
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			deleteItemMaster(lotRefNo);
 			e.printStackTrace();
+			throw new RuntimeException("fail to store csv data: " + e.getMessage());
 		}
 	}
 
@@ -134,8 +144,10 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	}
 
 	@Override
-	public InputStream load() {
-		return null;
+	public ByteArrayInputStream load(String id) {
+
+		ByteArrayInputStream in = ExcelHelper.tutorialsToExcel(getBomById(id, null), findById(id));
+		return in;
 	}
 
 	public Item getJson(String item) {
@@ -203,10 +215,19 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	}
 
 	@Override
-	public List<Bom> getBomById(String id) {
+	public List<Bom> getBomById(String id, String group) {
 		List<Bom> plist = new ArrayList<>();
+		String query = env.getProperty("SELECT_BOM");
+		
 		try {
-			List<Map<String, Object>> bomList = jdbcTemplate.queryForList(env.getProperty("select_bom"), id);
+			List<Map<String, Object>> bomList;
+			if(group != null) {
+				query = query.concat(" and packing_group =?");
+				bomList = jdbcTemplate.queryForList(query, id, group);
+			}else {
+				bomList = jdbcTemplate.queryForList(query, id);
+			}
+			
 			bomList.forEach(m -> {
 				Bom b = new Bom();
 				b.setBomId((int) m.get("BOM_ID"));
@@ -235,25 +256,26 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 				b.setModifiedBy((int) m.get("ModifiedBy"));
 				b.setModifiedDate((Date) m.get("ModifiedDate"));
 				b.setStatus((boolean) m.get("Status"));
-				
-				if((int)m.get("pick_label_scan") == 0) {
+
+				if ((int) m.get("pick_label_scan") == 0) {
 					b.setLabelStatus("Pending");
 					b.setColorCode("#FFFF00");
-				}else if((int)m.get("part_label_scan") > 0 && (int)m.get("part_label_scan") < Integer.parseInt(b.getTotalNoOfPackingGroup())) {
+				} else if ((int) m.get("part_label_scan") > 0
+						&& (int) m.get("part_label_scan") < Integer.parseInt(b.getTotalNoOfPackingGroup())) {
 					b.setLabelStatus("Work In Progress");
 					b.setColorCode("#00FF00");
-				}else if((int)m.get("pick_label_scan") == 2){
-						b.setLabelStatus("Received");
-						b.setColorCode("#964B00");	
-				}else if((int)m.get("part_label_scan") == Integer.parseInt(b.getTotalNoOfPackingGroup())) {
+				} else if ((int) m.get("pick_label_scan") == 2) {
+					b.setLabelStatus("Received");
+					b.setColorCode("#964B00");
+				} else if ((int) m.get("part_label_scan") == Integer.parseInt(b.getTotalNoOfPackingGroup())) {
 					b.setLabelStatus("Packed");
-					b.setColorCode("#0000FF");	
-				}else if((int)m.get("pick_label_scan") == 1) {
+					b.setColorCode("#0000FF");
+				} else if ((int) m.get("pick_label_scan") == 1) {
 					b.setLabelStatus("Acknowledge");
 					b.setColorCode("#FFA500");
 				}
-				b.setEnablePartLabel((int)m.get("pick_label_scan") > 0);
-				b.setTotalPartScanned((int)m.get("part_label_scan")+"/"+b.getTotalNoOfPackingGroup());
+				b.setEnablePartLabel((int) m.get("pick_label_scan") > 0);
+				b.setTotalPartScanned((int) m.get("part_label_scan") + "/" + b.getTotalNoOfPackingGroup());
 				plist.add(b);
 			});
 		} catch (Exception e) {
@@ -269,20 +291,21 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	}
 
 	@Override
-	public void gunScanner(String barcode, String value) {
+	public String gunScanner(String barcode, String value) {
+		Map<String, Object> out = null;
 		try {
 			SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("scan_pick_label");
 
 			Map<String, Object> param = new HashMap<String, Object>();
 			param.put("part_no_in", barcode);
 			param.put("Scan_Type_in", value);
-			//param.put("lot_RefNo_in", scan.lot);
+			
 			SqlParameterSource in = new MapSqlParameterSource().addValues(param);
-			Map<String, Object> out = jdbcCall.execute(in);
-			System.out.println(out.toString());
+			 out = jdbcCall.execute(in);
 		} catch (Exception e) {
-e.printStackTrace();
+			e.printStackTrace();
 		}
+		return String.valueOf(out.get("#update-count-1"));
 
 	}
 
@@ -300,6 +323,80 @@ e.printStackTrace();
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public SummaryDTO findById(String id) {
+
+		SummaryDTO summary = null;
+		try {
+			summary = (SummaryDTO) jdbcTemplate.queryForObject(env.getProperty("select_itemById"), new Object[] { id },
+					new BeanPropertyRowMapper<SummaryDTO>(SummaryDTO.class));
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+
+		return summary;
+	}
+
+	@Override
+	public void deleteItemMaster(String lot_ref_no) {
+		String SQL = "delete from item_master where lot_ref_no = ?";
+	      jdbcTemplate.update(SQL, lot_ref_no);
+	      return;
+	}
+	
+	public Bom getBomJson(String bom) {
+		Bom it = new Bom();
+		ObjectMapper objMap = new ObjectMapper();
+		try {
+			it = objMap.readValue(bom, Bom.class);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return it;
+	}
+
+	@Override
+	public void createCase(Bom c) {
+		
+		int ca =0;
+		try {
+			ca = (int) jdbcTemplate.queryForObject(env.getProperty("SELECT_CASE_ID"), new Object[] { c.getLot_ref_no(), c.getBomNo(), c.getPackingGroup() }, Integer.class);
+			 		
+		} catch (Exception e) {
+			
+	  } 
+		
+		try {
+		if(ca ==0) {
+	
+			jdbcTemplate.update(new PreparedStatementCreator() {
+				@Override
+				public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+					PreparedStatement ps = connection.prepareStatement(env.getProperty("INSERT_CASE"));
+					ps.setString(1, c.getLot_ref_no());
+					ps.setString(2, c.getBomNo());
+					ps.setString(3, c.getPackingGroup());
+					ps.setString(4, c.getNetWeight());
+					ps.setString(5, c.getGrossWeight());
+					return ps;
+				}
+			});
+		}else {
+			jdbcTemplate.update("UPDATE case_weight SET netweight = ?, grossweight = ?  WHERE lot_ref_no=? and bomno=? and packinggroup=? ", new Object[] {c.getNetWeight(), c.getGrossWeight(),  c.getLot_ref_no(), c.getBomNo(), c.getPackingGroup()});
+			
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
+	  }
+	}
+
+	@Override
+	public Case getCase(Bom c) {
+		
+		return (Case) jdbcTemplate.queryForObject(env.getProperty("SELECT_CASE_ID"), new Object[] { c.getLot_ref_no(), c.getBomNo(), c.getPackingGroup() },
+		 		new BeanPropertyRowMapper(Case.class));
 	}
 
 }

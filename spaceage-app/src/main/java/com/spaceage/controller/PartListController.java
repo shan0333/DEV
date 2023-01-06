@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spaceage.model.Bom;
+import com.spaceage.model.Case;
 import com.spaceage.model.ResponseDTO;
 import com.spaceage.service.ItemMasterService;
 
@@ -26,7 +27,7 @@ public class PartListController {
 	@GetMapping("/bombyid/{id}")
 	public ResponseEntity<List<Bom>> getBomById(@PathVariable("id") String id) {
 		try {
-			List<Bom> item = itemService.getBomById(id);
+			List<Bom> item = itemService.getBomById(id, null);
 
 			if (item.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -48,4 +49,6 @@ public class PartListController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	
 }

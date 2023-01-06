@@ -48,5 +48,16 @@ public class CustomerController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@GetMapping("/test")
+	public ResponseEntity<String> test() {
+		try {
+			
+
+			return new ResponseEntity<>("Ok", HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>("Fail", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 }

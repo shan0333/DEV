@@ -1,7 +1,5 @@
 package com.spaceage.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.spaceage.model.Customer;
+import com.spaceage.model.ResponseDTO;
 import com.spaceage.service.ItemMasterService;
 
 @CrossOrigin
@@ -21,13 +19,22 @@ public class GunScannerController {
 	ItemMasterService itemService;
 
 	@GetMapping("/gunscanner/{id}/{value}")
-	public ResponseEntity<List<Customer>> gunScanner(@PathVariable("id") String id, @PathVariable("value") String value) {
-		 try {
-				itemService.gunScanner(id, value);
-				return new ResponseEntity<>(HttpStatus.OK);
-			} catch (Exception e) {
-				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	public ResponseEntity<ResponseDTO> gunScanner(@PathVariable("id") String id, @PathVariable("value") String value) {
+		String response = null;
+		try {
+			response = itemService.gunScanner(id, value);
+
+			if (response.equals("1")) {
+				return ResponseEntity.status(HttpStatus.OK)
+						.body(new ResponseDTO(value + " Label Scanned Successfully!!"));
+			} else {
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+						.body(new ResponseDTO("Please try again!!"));
 			}
+
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("Please try again!!"));
+		}
 	}
 
 }
