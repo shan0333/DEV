@@ -75,6 +75,10 @@ public class Bom {
 	private String netWeight;
 	
 	private String grossWeight;
+	
+	private boolean enableCaseReport;
+	
+	private String projectCode;
 
 	public Bom() {
 		super();
@@ -393,6 +397,22 @@ public class Bom {
 
 	public void setGrossWeight(String grossWeight) {
 		this.grossWeight = grossWeight;
+	}
+
+	public boolean isEnableCaseReport() {
+		return enableCaseReport;
+	}
+
+	public void setEnableCaseReport(boolean enableCaseReport) {
+		this.enableCaseReport = enableCaseReport;
+	}
+
+	public String getProjectCode() {
+		return projectCode;
+	}
+
+	public void setProjectCode(String projectCode) {
+		this.projectCode = projectCode;
 	}
 
 	

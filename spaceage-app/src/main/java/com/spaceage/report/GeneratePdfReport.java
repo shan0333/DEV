@@ -39,6 +39,11 @@ public class GeneratePdfReport {
         	// add header and footer
            // HeaderFooterPageEvent event = new HeaderFooterPageEvent(summaryDTO);
         	Chunk glue = new Chunk(new VerticalPositionMark());
+        	Image cusLogo = Image.getInstance("http://spaceagecode.s3-website.us-east-2.amazonaws.com/assets/images/ashok_leyland_logo.png");
+        	cusLogo.scaleToFit(70, 70);
+        	cusLogo.setPaddingTop(90);
+//        	cusLogo.setIndentationLeft(450);
+        	
         	Image logo = Image.getInstance("http://spaceagecode.s3-website.us-east-2.amazonaws.com/assets/images/company-logo.jpeg");
         	logo.scaleToFit(100, 100);
         	logo.setIndentationLeft(450);
@@ -46,8 +51,8 @@ public class GeneratePdfReport {
         	LineSeparator ls = new LineSeparator();
         	
         	Paragraph title1 = new Paragraph();
-         	title1.add(new Phrase("SKD "+summaryDTO.getType() + " - "+ summaryDTO.getName() + " TO " + summaryDTO.getDesignation() +" "+ summaryDTO.getCountry(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
-         	title1.setIndentationLeft(100);
+         	title1.add(new Phrase("ALH2 " + " TO " + summaryDTO.getDesignation(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
+         	title1.setIndentationLeft(200);
             title1.setPaddingTop(80);
             
             Paragraph p = new Paragraph();
@@ -156,6 +161,7 @@ public class GeneratePdfReport {
             //writer.setPageEvent(event);
             document.open();
             for(int i=0; i<Integer.parseInt(bom.getTotalNoOfPackingGroup()); i++) {
+            document.add(cusLogo);
             document.add(logo);
             
             document.add(getTitle(bom, summaryDTO, i+1));

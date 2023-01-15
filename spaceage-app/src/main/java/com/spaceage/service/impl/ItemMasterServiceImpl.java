@@ -218,8 +218,14 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	public List<Bom> getBomById(String id, String group) {
 		List<Bom> plist = new ArrayList<>();
 		String query = env.getProperty("SELECT_BOM");
+		String getProjectCode = env.getProperty("SELECT_PROJECT_CODE");
 		
-		try {
+        Object[] inputs = new Object[] {id};
+        try {
+        String projectCode = jdbcTemplate.queryForObject(getProjectCode, inputs, String.class);
+        
+		
+		
 			List<Map<String, Object>> bomList;
 			if(group != null) {
 				query = query.concat(" and packing_group =?");
@@ -256,7 +262,9 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 				b.setModifiedBy((int) m.get("ModifiedBy"));
 				b.setModifiedDate((Date) m.get("ModifiedDate"));
 				b.setStatus((boolean) m.get("Status"));
-
+				b.setProjectCode(projectCode);
+				b.setEnablePartLabel(false);
+				b.setEnableCaseReport(false);
 				if ((int) m.get("pick_label_scan") == 0) {
 					b.setLabelStatus("Pending");
 					b.setColorCode("#FFFF00");
@@ -264,17 +272,29 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 						&& (int) m.get("part_label_scan") < Integer.parseInt(b.getTotalNoOfPackingGroup())) {
 					b.setLabelStatus("Work In Progress");
 					b.setColorCode("#00FF00");
+					b.setEnablePartLabel(true);
 				} else if ((int) m.get("pick_label_scan") == 2) {
-					b.setLabelStatus("Received");
-					b.setColorCode("#964B00");
-				} else if ((int) m.get("part_label_scan") == Integer.parseInt(b.getTotalNoOfPackingGroup())) {
-					b.setLabelStatus("Packed");
-					b.setColorCode("#0000FF");
+					
+					if ((int) m.get("part_label_scan") == Integer.parseInt(b.getTotalNoOfPackingGroup())) {
+						b.setLabelStatus("Packed");
+						b.setColorCode("#0000FF");
+						b.setEnablePartLabel(true);
+						b.setEnableCaseReport(true);
+					}else {	
+						b.setLabelStatus("Received");
+						b.setColorCode("#964B00");
+						b.setEnablePartLabel(true);
+					}	
+//				} else if ((int) m.get("part_label_scan") == Integer.parseInt(b.getTotalNoOfPackingGroup())) {
+//					b.setLabelStatus("Packed");
+//					b.setColorCode("#0000FF");
+//					b.setEnablePartLabel(true);
+//					b.setEnableCaseReport(true);
 				} else if ((int) m.get("pick_label_scan") == 1) {
 					b.setLabelStatus("Acknowledge");
 					b.setColorCode("#FFA500");
 				}
-				b.setEnablePartLabel((int) m.get("pick_label_scan") > 0);
+				//b.setEnablePartLabel((int) m.get("pick_label_scan") > 0);
 				b.setTotalPartScanned((int) m.get("part_label_scan") + "/" + b.getTotalNoOfPackingGroup());
 				plist.add(b);
 			});
