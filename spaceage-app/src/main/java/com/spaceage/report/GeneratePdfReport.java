@@ -24,7 +24,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.itextpdf.text.pdf.draw.VerticalPositionMark;
 import com.spaceage.model.Bom;
-import com.spaceage.model.Case;
 import com.spaceage.model.SummaryDTO;
 
 public class GeneratePdfReport {
@@ -51,7 +50,7 @@ public class GeneratePdfReport {
         	LineSeparator ls = new LineSeparator();
         	
         	Paragraph title1 = new Paragraph();
-         	title1.add(new Phrase("ALH2 " + " TO " + summaryDTO.getDesignation(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
+         	title1.add(new Phrase("ALH2 " + " TO " + summaryDTO.getCustomer_location(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
          	title1.setIndentationLeft(200);
             title1.setPaddingTop(80);
             
@@ -67,10 +66,10 @@ public class GeneratePdfReport {
             p2.add("NAME: "+ bom.getPackCode());
             p2.add(glue);
             SimpleDateFormat myFormatObj = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-            p2.add("CASE PACKED ON: "+ myFormatObj.format(bom.getModifiedDate()));
+            p2.add("CASE PACKED ON: "+ myFormatObj.format(bom.getPackedDate()));
             
             Paragraph p3 = new Paragraph();
-            p3.add("");
+            p3.add(""); 
             p3.add(glue);
             p3.add("NET WEIGHT (KG): "+bom.getNetWeight());
             

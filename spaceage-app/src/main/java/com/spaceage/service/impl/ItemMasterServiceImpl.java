@@ -262,6 +262,11 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 				b.setModifiedBy((int) m.get("ModifiedBy"));
 				b.setModifiedDate((Date) m.get("ModifiedDate"));
 				b.setStatus((boolean) m.get("Status"));
+				b.setPendingDate((Date)m.get("pendingDate"));
+				b.setAckDate((Date)m.get("ackDate"));
+				b.setReceivedDate((Date)m.get("receivedDate"));
+				b.setPackedDate((Date)m.get("packedDate"));
+				
 				b.setProjectCode(projectCode);
 				b.setEnablePartLabel(false);
 				b.setEnableCaseReport(false);

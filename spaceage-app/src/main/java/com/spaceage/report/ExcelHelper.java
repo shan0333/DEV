@@ -3,7 +3,10 @@ package com.spaceage.report;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +28,7 @@ import com.spaceage.model.SummaryDTO;
 public class ExcelHelper {
 
 	 public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-	  static String[] HEADERs = { "SNo","STATUS","SCANNED QTY","PART NO","PART DESCRIPTION","CAT DESCRIPTION","PRIMARY","QTY REQUIRED","PACK CODE","PACK QTY","PACKING GROUP","MIX GROUP"};
+	  static String[] HEADERs = { "SNo","STATUS","SCANNED QTY","PART NO","PART DESCRIPTION","CAT DESCRIPTION","PRIMARY","QTY REQUIRED","PACK CODE","PACK QTY","PACKING GROUP","MIX GROUP", "PENDING", "ACKNOWLEDGE", "RECEIVED", "PACKED"};
 	  static String[] HEADERSUMMARY = { "Packaging Type","Spaceage Lot No","Customer Code","Customer Name","Customer location","Project code","Project Description","Lot Size","Origin Country","Destination Customer name","Destination Country"};
 	  static String[] SUMMARY = { "Description","Aggregate","Loose Parts","Bulk Parts","Total"};
 	  static String SHEET = "Bill Of Material";
@@ -280,6 +283,8 @@ public class ExcelHelper {
 	        cell.setCellStyle(style);
 	      }
 
+	      DateFormat dateFormat = new SimpleDateFormat("DD-MM-YYYY");  
+	         
 	      int rowIdx = 24;
 	      int count =1;
 	      for (Bom b : bom) {
@@ -297,7 +302,10 @@ public class ExcelHelper {
 	        row.createCell(9).setCellValue(Integer.parseInt(b.getPackQty()));
 	        row.createCell(10).setCellValue(b.getPackingGroup());
 	        row.createCell(11).setCellValue(Integer.parseInt(b.getMixGroup()));
-	        
+	        row.createCell(12).setCellValue(b.getPendingDate() !=null ? dateFormat.format(b.getPendingDate()): null);
+	        row.createCell(13).setCellValue(b.getAckDate() !=null ? dateFormat.format(b.getAckDate()): null);
+	        row.createCell(14).setCellValue(b.getReceivedDate() !=null ? dateFormat.format(b.getReceivedDate()): null);
+	        row.createCell(15).setCellValue(b.getPackedDate() !=null ? dateFormat.format(b.getPackedDate()): null);
 	        count++;
 	      }
 	      sheet.autoSizeColumn(0);
@@ -312,6 +320,10 @@ public class ExcelHelper {
 	      sheet.autoSizeColumn(9);
 	      sheet.autoSizeColumn(10);
 	      sheet.autoSizeColumn(11);
+	      sheet.autoSizeColumn(12);
+	      sheet.autoSizeColumn(13);
+	      sheet.autoSizeColumn(14);
+	      sheet.autoSizeColumn(15);
 	      
 	      
 	      workbook.write(out);

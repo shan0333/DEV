@@ -79,6 +79,14 @@ public class Bom {
 	private boolean enableCaseReport;
 	
 	private String projectCode;
+	
+	private Date pendingDate;
+	
+	private Date ackDate;
+	
+	private Date receivedDate;
+	
+	private Date packedDate;
 
 	public Bom() {
 		super();
@@ -413,6 +421,38 @@ public class Bom {
 
 	public void setProjectCode(String projectCode) {
 		this.projectCode = projectCode;
+	}
+
+	public Date getPendingDate() {
+		return pendingDate;
+	}
+
+	public void setPendingDate(Date pendingDate) {
+		this.pendingDate = pendingDate;
+	}
+
+	public Date getAckDate() {
+		return ackDate;
+	}
+
+	public void setAckDate(Date ackDate) {
+		this.ackDate = ackDate;
+	}
+
+	public Date getReceivedDate() {
+		return receivedDate;
+	}
+
+	public void setReceivedDate(Date receivedDate) {
+		this.receivedDate = receivedDate;
+	}
+
+	public Date getPackedDate() {
+		return packedDate;
+	}
+
+	public void setPackedDate(Date packedDate) {
+		this.packedDate = packedDate;
 	}
 
 	
