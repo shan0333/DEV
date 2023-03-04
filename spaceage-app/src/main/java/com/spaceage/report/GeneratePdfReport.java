@@ -2,10 +2,13 @@ package com.spaceage.report;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.LoggerFactory;
 
@@ -98,9 +101,9 @@ public class GeneratePdfReport {
             p8.add(glue);
             p8.add("(SPACEAGE)");
             
-            PdfPTable table = new PdfPTable(5);
+            PdfPTable table = new PdfPTable(6);
             table.setWidthPercentage(100);
-            table.setWidths(new int[]{2, 2, 4, 10, 2});
+            table.setWidths(new int[]{2, 2, 4, 10, 2, 5});
             Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
             Font rowFont = FontFactory.getFont(FontFactory.TIMES_ROMAN);
 
@@ -124,6 +127,11 @@ public class GeneratePdfReport {
             hcell = new PdfPCell(new Phrase("QTY", headFont));
             hcell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(hcell);
+            
+            hcell = new PdfPCell(new Phrase("Image", headFont));
+            hcell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(hcell);
+            
             int count = 1;
             for (Bom s : part) {
                 
@@ -150,6 +158,13 @@ public class GeneratePdfReport {
                 table.addCell(cell);
                 
                 cell = new PdfPCell(new Phrase(s.getPackQty(), rowFont));
+                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cell);
+               
+                Image partImage = Image.getInstance(s.getByteImage());
+
+                cell = new PdfPCell(partImage, true);
                 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(cell);

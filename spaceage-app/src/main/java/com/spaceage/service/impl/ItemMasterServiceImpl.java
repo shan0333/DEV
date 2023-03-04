@@ -1,6 +1,9 @@
 package com.spaceage.service.impl;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,9 +15,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
+import javax.imageio.ImageIO;
+
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -301,12 +310,40 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 				}
 				//b.setEnablePartLabel((int) m.get("pick_label_scan") > 0);
 				b.setTotalPartScanned((int) m.get("part_label_scan") + "/" + b.getTotalNoOfPackingGroup());
+				
+				try {
+					b.setByteImage(getImageByPartNo(b.getPartNo()));
+					
+				} catch (IOException e) {
+					
+					e.printStackTrace();
+				}
+				
 				plist.add(b);
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return plist;
+	}
+
+	private byte[] getImageByPartNo(String partNo) throws IOException {
+		
+		String getProjectCode = env.getProperty("SELECT_IMAGE");
+		
+        Object[] inputs = new Object[] {partNo};
+        
+        byte[] data = null;
+		try {
+			data = jdbcTemplate.queryForObject(getProjectCode, inputs, byte[].class);
+		} catch (DataAccessException e) {
+			//do nothing
+		}
+		  if(data!=null) {
+			  return  Base64.decodeBase64(data);
+		  }
+		return null;
+		
 	}
 
 	@Override
@@ -424,4 +461,22 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 		 		new BeanPropertyRowMapper(Case.class));
 	}
 
+	// uncompress the image bytes before returning it to the angular application
+			public static byte[] decompressBytes(byte[] data) {
+				Inflater inflater = new Inflater();
+				inflater.setInput(data);
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+				byte[] buffer = new byte[1024];
+				try {
+					while (!inflater.finished()) {
+						int count = inflater.inflate(buffer);
+						outputStream.write(buffer, 0, count);
+					}
+					outputStream.close();
+				} catch (IOException ioe) {
+				} catch (DataFormatException e) {
+				}
+				return outputStream.toByteArray();
+			}
+	
 }

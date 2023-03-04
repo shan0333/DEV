@@ -28,7 +28,7 @@ public class ReportController {
 
 	  @GetMapping("/download/{id:.+}")
 	  public ResponseEntity<Resource> getFile(@PathVariable("id") String id) {
-	    String filename = "tutorials.xlsx";
+	    String filename = "spaceage.xlsx";
 	    InputStreamResource file = new InputStreamResource(fileService.load(id));
 
 	    return ResponseEntity.ok()

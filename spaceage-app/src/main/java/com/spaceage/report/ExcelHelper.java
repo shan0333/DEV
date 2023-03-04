@@ -39,65 +39,65 @@ public class ExcelHelper {
 	    try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
 	      Sheet sheet = workbook.createSheet(SHEET);
 	      long aggeregate = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Aggeregate")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Aggeregate") || e.getSecondaryNo().equalsIgnoreCase("Aggeregate")))
 	    		    .count();
 	      
 	      long looseItem = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("loose items")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("loose items") || e.getSecondaryNo().equalsIgnoreCase("loose items")))
 	    		    .count();
 	      
 	      long bulkItems = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Bulk items")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Bulk items") || e.getSecondaryNo().equalsIgnoreCase("Bulk items")))
 	    		    .count();
 	      
 	      long aggAck = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Aggeregate") && e.getLabelStatus().equals("Acknowledge")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Aggeregate") || e.getSecondaryNo().equalsIgnoreCase("Aggeregate")) && e.getLabelStatus().equals("Acknowledge"))
 	    		    .count();
 	      
 	      long loosAck = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("loose items") && e.getLabelStatus().equals("Acknowledge")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("loose items") || e.getSecondaryNo().equalsIgnoreCase("loose items")) && e.getLabelStatus().equals("Acknowledge"))
 	    		    .count();
 	      
 	      long bulkAck = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Bulk items") && e.getLabelStatus().equals("Acknowledge")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Bulk items") || e.getSecondaryNo().equalsIgnoreCase("Bulk items")) && e.getLabelStatus().equals("Acknowledge"))
 	    		    .count();
 	      
 	      
 	      long aggPen = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Aggeregate") && e.getLabelStatus().equals("Pending")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Aggeregate") || e.getSecondaryNo().equalsIgnoreCase("Aggeregate")) && e.getLabelStatus().equals("Pending"))
 	    		    .count();
 	      
 	      long loosPen = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("loose items") && e.getLabelStatus().equals("Pending")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("loose items") || e.getSecondaryNo().equalsIgnoreCase("loose items")) && e.getLabelStatus().equals("Pending"))
 	    		    .count();
 	      
 	      long bulkPen = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Bulk items") && e.getLabelStatus().equals("Pending")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Bulk items") || e.getSecondaryNo().equalsIgnoreCase("Bulk items")) && e.getLabelStatus().equals("Pending"))
 	    		    .count();
 	      
 	      long aggRec = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Aggeregate") && e.getLabelStatus().equals("Received")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Aggeregate") || e.getSecondaryNo().equalsIgnoreCase("Aggeregate")) && e.getLabelStatus().equals("Received"))
 	    		    .count();
 	      
 	      long loosRec = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("loose items") && e.getLabelStatus().equals("Received")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("loose items") || e.getSecondaryNo().equalsIgnoreCase("loose items")) && e.getLabelStatus().equals("Received"))
 	    		    .count();
 	      
 	      long bulkRec = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Bulk items") && e.getLabelStatus().equals("Received")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Bulk items") || e.getSecondaryNo().equalsIgnoreCase("Bulk items")) && e.getLabelStatus().equals("Received"))
 	    		    .count();
 	      
 	      
 	      long aggPac = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Aggeregate") && e.getLabelStatus().equals("Packed")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Aggeregate")|| e.getSecondaryNo().equalsIgnoreCase("Aggeregate")) && e.getLabelStatus().equals("Packed"))
 	    		    .count();
 	      
 	      long loosPac = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("loose items") && e.getLabelStatus().equals("Packed")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("loose items")|| e.getSecondaryNo().equalsIgnoreCase("loose items")) && e.getLabelStatus().equals("Packed"))
 	    		    .count();
 	      
 	      long bulkPac = bom.stream()
-	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equals("Bulk items") && e.getLabelStatus().equals("Packed")))
+	    		    .filter(e ->  Objects.nonNull(e.getPartNo()) && (e.getPrimaryNo().equalsIgnoreCase("Bulk items") || e.getSecondaryNo().equalsIgnoreCase("Bulk items")) && e.getLabelStatus().equals("Packed"))
 	    		    .count();
 	      
 	      Font headerFont = workbook.createFont();
@@ -142,25 +142,26 @@ public class ExcelHelper {
 	        sumRowCell.setCellValue("Material Summary");
 	        sumRowCell.setCellStyle(style);
 	        
-	        Row sumRow = sheet.createRow(3);
+	        Row sumRow = sheet.createRow(7);
 	        sumRowCell = sumRow.createCell(1);
 	        sumRowCell.setCellValue("Total No of Parts");
-	        sumRowCell.setCellStyle(style1);
+	        sumRowCell.setCellStyle(style);
 	        sumRowCell = sumRow.createCell(2);
 	        sumRowCell.setCellValue(aggeregate);
-	        sumRowCell.setCellStyle(style1);
+	        sumRowCell.setCellStyle(style);
 	        sumRowCell = sumRow.createCell(3);
 	        sumRowCell.setCellValue(looseItem);
-	        sumRowCell.setCellStyle(style1);
+	        sumRowCell.setCellStyle(style);
 	        sumRowCell = sumRow.createCell(4);
 	        sumRowCell.setCellValue(bulkItems);
-	        sumRowCell.setCellStyle(style1);
+	        sumRowCell.setCellStyle(style);
 	        sumRowCell = sumRow.createCell(5);
 	        sumRowCell.setCellValue(aggeregate+looseItem+bulkItems);
-	        sumRowCell.setCellStyle(style1);
+	        sumRowCell.setCellStyle(style);
 	        
 	        
-	        Row sumRow1 = sheet.createRow(4);
+	        
+	        Row sumRow1 = sheet.createRow(3);
 	        sumRowCell = sumRow1.createCell(1);
 	        sumRowCell.setCellValue("Acknowledgement");
 	        sumRowCell.setCellStyle(style1);
@@ -177,7 +178,7 @@ public class ExcelHelper {
 	        sumRowCell.setCellValue(aggAck+loosAck+bulkAck);
 	        sumRowCell.setCellStyle(style1);
 	        
-	        Row sumRow2 = sheet.createRow(5);
+	        Row sumRow2 = sheet.createRow(4);
 	        sumRowCell = sumRow2.createCell(1);
 	        sumRowCell.setCellValue("Pending");
 	        sumRowCell.setCellStyle(style1);
@@ -194,7 +195,7 @@ public class ExcelHelper {
 	        sumRowCell.setCellValue(aggPen+loosPen+bulkPen);
 	        sumRowCell.setCellStyle(style1);
 	        
-	        Row sumRow3 = sheet.createRow(6);
+	        Row sumRow3 = sheet.createRow(5);
 	        sumRowCell = sumRow3.createCell(1);
 	        sumRowCell.setCellValue("Received");
 	        sumRowCell.setCellStyle(style1);
@@ -212,7 +213,7 @@ public class ExcelHelper {
 	        sumRowCell.setCellStyle(style1);
 	        
 	        
-	        Row sumRow4 = sheet.createRow(7);
+	        Row sumRow4 = sheet.createRow(6);
 	        sumRowCell = sumRow4.createCell(1);
 	        sumRowCell.setCellValue("Packed");
 	        sumRowCell.setCellStyle(style1);

@@ -1,5 +1,6 @@
 package com.spaceage.model;
 
+import java.awt.image.BufferedImage;
 import java.util.Date;
 
 public class Bom {
@@ -87,6 +88,8 @@ public class Bom {
 	private Date receivedDate;
 	
 	private Date packedDate;
+	
+	private byte[] byteImage;
 
 	public Bom() {
 		super();
@@ -453,6 +456,14 @@ public class Bom {
 
 	public void setPackedDate(Date packedDate) {
 		this.packedDate = packedDate;
+	}
+
+	public byte[] getByteImage() {
+		return byteImage;
+	}
+
+	public void setByteImage(byte[] byteImage) {
+		this.byteImage = byteImage;
 	}
 
 	
