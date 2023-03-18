@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spaceage.model.Bom;
-import com.spaceage.model.Case;
 import com.spaceage.report.GeneratePdfReport;
 import com.spaceage.service.ItemMasterService;
 
@@ -62,9 +61,7 @@ public class ReportController {
 					fileService.createCase(bom);
 					
 					
-					ByteArrayInputStream bis = GeneratePdfReport.caseReport(
-							fileService.getBomById(bom.getLot_ref_no(), bom.getPackingGroup()),
-							fileService.findById(bom.getLot_ref_no()), bom);
+					ByteArrayInputStream bis = GeneratePdfReport.caseReport(fileService.getBomById(bom.getLot_ref_no(), bom.getPackingGroup()), fileService.findById(bom.getLot_ref_no()), bom, fileService.getImage(bom.getLot_ref_no(), bom.getPackingGroup()));
 					var headers = new HttpHeaders();
 					headers.add("Content-Disposition", "inline; filename=citiesreport.pdf");
 					return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF)

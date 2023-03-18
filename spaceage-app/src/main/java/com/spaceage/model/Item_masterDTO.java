@@ -1,5 +1,7 @@
 package com.spaceage.model;
 
+import java.util.List;
+
 public class Item_masterDTO {
 	private String item_id;
 	private String lot_ref_no;
@@ -14,6 +16,8 @@ public class Item_masterDTO {
 	private String country;
 	private Integer totalElements;
 	private String report;
+	private String lot_size;
+	private List<?> containers;
 
 	public String getLot_ref_no() {
 		return lot_ref_no;
@@ -109,6 +113,22 @@ public class Item_masterDTO {
 
 	public void setReport(String report) {
 		this.report = report;
+	}
+
+	public String getLot_size() {
+		return lot_size;
+	}
+
+	public void setLot_size(String lot_size) {
+		this.lot_size = lot_size;
+	}
+
+	public List<?> getContainers() {
+		return containers;
+	}
+
+	public void setContainers(List<?> containers) {
+		this.containers = containers;
 	}
 
 	

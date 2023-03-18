@@ -45,7 +45,7 @@ public class ImageServiceImpl implements ImageService{
 				PreparedStatement ps = connection.prepareStatement(env.getProperty("INSERT_IMAGE"));
 				ps.setString(1, img.getName());
 				ps.setString(2, img.getType());
-				ps.setString(3, img.getPicByte());
+				ps.setString(3, img.getImgString());
 				
 				return ps;
 			}
@@ -53,7 +53,7 @@ public class ImageServiceImpl implements ImageService{
 		}else {
 			jdbcTemplate.update(
 					env.getProperty("UPDATE_IMAGE"), 
-	                img.getType(), img.getPicByte(), data);
+	                img.getType(), img.getImgString(), data);
 		}
 	}
 

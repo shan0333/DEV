@@ -2,6 +2,7 @@ package com.spaceage.service;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,7 @@ import com.spaceage.model.Case;
 import com.spaceage.model.Country;
 import com.spaceage.model.Item;
 import com.spaceage.model.PackagingType;
+import com.spaceage.model.PartRequestDTO;
 import com.spaceage.model.RequestDTO;
 import com.spaceage.model.ResponseDTO;
 import com.spaceage.model.SummaryDTO;
@@ -38,7 +40,7 @@ public interface ItemMasterService {
 
 	SummaryDTO findById(String id);
 	
-	void createBom(Bom bom);
+	int createBom(Bom bom);
 
 	String gunScanner(String id, String value);
 
@@ -49,5 +51,17 @@ public interface ItemMasterService {
 	void createCase(Bom c);
 	
 	Case getCase(Bom bom);
+
+	List<Bom> getBomByIdForLable(String lotRefNo, String bomId);
+
+	ResponseDTO getBomById(PartRequestDTO request);
+
+	Map<String, byte[]> getImage(String lot_ref_no, String packingGroup);
+
+	Bom checkPickLableScanData(String value);
+
+	Bom checkPartLableScanData(String id);
+
+	int itemUpdate(Item request);
 
 }

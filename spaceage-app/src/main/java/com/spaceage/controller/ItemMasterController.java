@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,6 +77,20 @@ public class ItemMasterController {
 			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	
+	@PostMapping("/itemUpdate")
+	public ResponseEntity<ResponseDTO> itemUpdate(@RequestBody String item) {
+		
+			try {
+				
+				itemService.itemUpdate(itemService.getJson(item));
+
+				return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO("Part Created Successfully!"));
+			} catch (Exception e) {
+				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 	}
 
 	@GetMapping("/packagingtype")

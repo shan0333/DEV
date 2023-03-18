@@ -34,7 +34,7 @@ public class Project {
 
 	private String web_address;
 
-	private int CreatedBy;
+	private int CreatedBy = 1;
 
 	private Date CreatedDate;
 
@@ -42,7 +42,9 @@ public class Project {
 
 	private Date ModifiedDate;
 
-	private int Status;
+	private int Status = 1;
+	
+	private boolean deleteFlag = false;
 
 	public int getProject_id() {
 		return project_id;
@@ -213,6 +215,14 @@ public class Project {
 				+ mobile + ", email=" + email + ", web_address=" + web_address + ", CreatedBy=" + CreatedBy
 				+ ", CreatedDate=" + CreatedDate + ", ModifiedBy=" + ModifiedBy + ", ModifiedDate=" + ModifiedDate
 				+ ", Status=" + Status + "]";
+	}
+
+	public boolean isDeleteFlag() {
+		return deleteFlag;
+	}
+
+	public void setDeleteFlag(boolean deleteFlag) {
+		this.deleteFlag = deleteFlag;
 	}
 
 }

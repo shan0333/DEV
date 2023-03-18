@@ -37,6 +37,21 @@ public class CustomerController {
 		}
 	}
 	
+	@GetMapping("/getCustomer")
+	public ResponseEntity<ResponseDTO> getCustomerList() {
+		try {
+			ResponseDTO cus = cusService.getCustomerList();
+
+			if (cus==null) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(cus, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	
 	@PostMapping("/createCustomer")
 	public ResponseEntity<ResponseDTO> createCustomer(@RequestBody Customer cus) {

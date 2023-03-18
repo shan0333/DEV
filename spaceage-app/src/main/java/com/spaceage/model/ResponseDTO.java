@@ -10,6 +10,7 @@ public class ResponseDTO {
 	private boolean noData;
 	private String message;
 	private List<?> data;
+	
 
 	public ResponseDTO(String message2) {
 		this.message = message2;

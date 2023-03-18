@@ -38,7 +38,7 @@ public class Customer {
 
 	private String customer_logo;
 
-	private int CreatedBy;
+	private int CreatedBy =1;
 
 	private Date CreatedDate;
 
@@ -46,7 +46,9 @@ public class Customer {
 
 	private Date ModifiedDate;
 
-	private int Status;
+	private int Status = 1;
+	
+	private boolean deleteFlag= false;
 
 	public int getCustomer_id() {
 		return customer_id;
@@ -233,6 +235,14 @@ public class Customer {
 				+ ", web_address=" + web_address + ", customer_location=" + customer_location + ", customer_logo="
 				+ customer_logo + ", CreatedBy=" + CreatedBy + ", CreatedDate=" + CreatedDate + ", ModifiedBy="
 				+ ModifiedBy + ", ModifiedDate=" + ModifiedDate + ", Status=" + Status + "]";
+	}
+
+	public boolean isDeleteFlag() {
+		return deleteFlag;
+	}
+
+	public void setDeleteFlag(boolean deleteFlag) {
+		this.deleteFlag = deleteFlag;
 	}
 
 }

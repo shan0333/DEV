@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,7 +28,7 @@ public class ExcelHelper {
 
 	 public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 	  static String[] HEADERs = { "SNo","STATUS","SCANNED QTY","PART NO","PART DESCRIPTION","CAT DESCRIPTION","PRIMARY","QTY REQUIRED","PACK CODE","PACK QTY","PACKING GROUP","MIX GROUP", "PENDING", "ACKNOWLEDGE", "RECEIVED", "PACKED"};
-	  static String[] HEADERSUMMARY = { "Packaging Type","Spaceage Lot No","Customer Code","Customer Name","Customer location","Project code","Project Description","Lot Size","Origin Country","Destination Customer name","Destination Country"};
+	  static String[] HEADERSUMMARY = { "Packaging Type","Spaceage Lot No","Customer Code","Customer Name","Project code","Project Description","Lot Size","Origin Country","Destination Country"};
 	  static String[] SUMMARY = { "Description","Aggregate","Loose Parts","Bulk Parts","Total"};
 	  static String SHEET = "Bill Of Material";
 
@@ -249,44 +248,47 @@ public class ExcelHelper {
 	    	  }else if(col == 3) {
 	    		  sumRowCell = summaryRow.createCell(1);
 	    		  sumRowCell.setCellValue(data.get(0).getName());
-	    	  }else if(col == 4) {
-	    		  sumRowCell = summaryRow.createCell(1);
-	    		  sumRowCell.setCellValue(data.get(0).getCustomer_location());
-	    	  }else if(col == 5) {
+				} /*
+					 * else if(col == 4) { sumRowCell = summaryRow.createCell(1);
+					 * sumRowCell.setCellValue(data.get(0).getCustomer_location()); }
+					 */
+	    	  else if(col == 4) {
 	    		  sumRowCell = summaryRow.createCell(1);
 	    		  sumRowCell.setCellValue(data.get(0).getProject_code());
-	    	  }else if(col == 6) {
+	    	  }else if(col == 5) {
 	    		  sumRowCell = summaryRow.createCell(1);
 	    		  sumRowCell.setCellValue(data.get(0).getProject_name());
-	    	  }else if(col == 7) {
+	    	  }else if(col == 6) {
 	    		  sumRowCell = summaryRow.createCell(1);
 	    		  sumRowCell.setCellValue(data.get(0).getLot_size());
-	    	  }else if(col == 8) {
+	    	  }else if(col == 7) {
 	    		  sumRowCell = summaryRow.createCell(1);
 	    		  sumRowCell.setCellValue(data.get(0).getCountry());
-	    	  }else if(col == 9) {
-	    		  sumRowCell = summaryRow.createCell(1);
-	    		  sumRowCell.setCellValue(data.get(0).getDesignation());
-	    	  }else if(col == 10) {
-	    		  sumRowCell = summaryRow.createCell(1);
-	    		  sumRowCell.setCellValue(data.get(0).getDestination_location());
-	    	  }
+			  } /*
+					 * else if(col == 9) { sumRowCell = summaryRow.createCell(1);
+					 * sumRowCell.setCellValue(data.get(0).getDesignation()); }
+					 */
+	    	  else if(col == 8) {
+				  sumRowCell = summaryRow.createCell(1);
+				  sumRowCell.setCellValue(data.get(0).getDestination_location());
+			  }
+				
 	    	  sumRowCell.setCellStyle(style1);
 		  }
 	      
 	     
 	      
 	      // Header
-	      Row headerRow = sheet.createRow(23);
+	      Row headerRow = sheet.createRow(20);
 	      for (int col = 0; col < HEADERs.length; col++) {
 	        Cell cell = headerRow.createCell(col);
 	        cell.setCellValue(HEADERs[col]);
 	        cell.setCellStyle(style);
 	      }
 
-	      DateFormat dateFormat = new SimpleDateFormat("DD-MM-YYYY");  
+	      DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY");  
 	         
-	      int rowIdx = 24;
+	      int rowIdx = 21;
 	      int count =1;
 	      for (Bom b : bom) {
 	        Row row = sheet.createRow(rowIdx++);
@@ -303,6 +305,7 @@ public class ExcelHelper {
 	        row.createCell(9).setCellValue(Integer.parseInt(b.getPackQty()));
 	        row.createCell(10).setCellValue(b.getPackingGroup());
 	        row.createCell(11).setCellValue(Integer.parseInt(b.getMixGroup()));
+	     
 	        row.createCell(12).setCellValue(b.getPendingDate() !=null ? dateFormat.format(b.getPendingDate()): null);
 	        row.createCell(13).setCellValue(b.getAckDate() !=null ? dateFormat.format(b.getAckDate()): null);
 	        row.createCell(14).setCellValue(b.getReceivedDate() !=null ? dateFormat.format(b.getReceivedDate()): null);

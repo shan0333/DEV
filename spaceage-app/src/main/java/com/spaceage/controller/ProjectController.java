@@ -37,6 +37,22 @@ public class ProjectController {
 		}
 	}
 	
+	
+	@GetMapping("/getProject")
+	public ResponseEntity<ResponseDTO> getCustomerList() {
+		try {
+			ResponseDTO pro = proService.getProjectList();
+
+			if (pro==null) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			return new ResponseEntity<>(pro, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	@PostMapping("/createProject")
 	public ResponseEntity<ResponseDTO> createCustomer(@RequestBody Project pro) {
 		try {

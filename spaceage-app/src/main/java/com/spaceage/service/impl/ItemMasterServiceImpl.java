@@ -1,9 +1,7 @@
 package com.spaceage.service.impl;
 
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
-
-import javax.imageio.ImageIO;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +39,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spaceage.model.Bom;
 import com.spaceage.model.Case;
 import com.spaceage.model.Country;
+import com.spaceage.model.ImageModel;
 import com.spaceage.model.Item;
 import com.spaceage.model.Item_masterDTO;
 import com.spaceage.model.PackagingType;
+import com.spaceage.model.PartRequestDTO;
 import com.spaceage.model.RequestDTO;
 import com.spaceage.model.ResponseDTO;
 import com.spaceage.model.SummaryDTO;
@@ -66,7 +64,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 		try {
 			List<Bom> fileData = CSVHelper.csvToBom(file.getInputStream(), lotRefNo);
 
-			jdbcTemplate.batchUpdate(env.getProperty("insert_bom"), new BatchPreparedStatementSetter() {
+			jdbcTemplate.batchUpdate(env.getProperty("INSERT_BOM"), new BatchPreparedStatementSetter() {
 
 				@Override
 				public void setValues(PreparedStatement pStmt, int i) throws SQLException {
@@ -102,9 +100,9 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 					return fileData.size();
 				}
 			});
-		
+
 		} catch (UncategorizedSQLException e) {
-			
+
 		} catch (IOException e) {
 			deleteItemMaster(lotRefNo);
 			e.printStackTrace();
@@ -128,7 +126,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 			String defaultQuery = getDefaultQery(request);
 			List<Item_masterDTO> dto = null;
 			try {
-				dto = jdbcTemplate.query(env.getProperty("select_all_item") + defaultQuery,
+				dto = jdbcTemplate.query(env.getProperty("SELECT_ALL_ITEM") + defaultQuery,
 						new BeanPropertyRowMapper<Item_masterDTO>(Item_masterDTO.class));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -175,7 +173,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-				PreparedStatement ps = connection.prepareStatement(env.getProperty("insert_item"),
+				PreparedStatement ps = connection.prepareStatement(env.getProperty("INSERT_ITEM"),
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, itemJson.getCustomer_code());
 				ps.setLong(2, itemJson.getProject_code());
@@ -228,21 +226,20 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 		List<Bom> plist = new ArrayList<>();
 		String query = env.getProperty("SELECT_BOM");
 		String getProjectCode = env.getProperty("SELECT_PROJECT_CODE");
-		
-        Object[] inputs = new Object[] {id};
-        try {
-        String projectCode = jdbcTemplate.queryForObject(getProjectCode, inputs, String.class);
-        
-		
-		
+
+		Object[] inputs = new Object[] { id };
+		try {
+			String projectCode = jdbcTemplate.queryForObject(getProjectCode, inputs, String.class);
+
 			List<Map<String, Object>> bomList;
-			if(group != null) {
-				query = query.concat(" and packing_group =?");
+			if (group != null) {
+				query = query.concat(" and packing_group =? ORDER BY CAST(bomNo as UNSIGNED) ASC ");
 				bomList = jdbcTemplate.queryForList(query, id, group);
-			}else {
+			} else {
+				query = query.concat(" ORDER BY CAST(bomNo as UNSIGNED) ASC ");
 				bomList = jdbcTemplate.queryForList(query, id);
 			}
-			
+
 			bomList.forEach(m -> {
 				Bom b = new Bom();
 				b.setBomId((int) m.get("BOM_ID"));
@@ -270,12 +267,12 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 				b.setCreatedDate((Date) m.get("CreatedDate"));
 				b.setModifiedBy((int) m.get("ModifiedBy"));
 				b.setModifiedDate((Date) m.get("ModifiedDate"));
-				b.setStatus((boolean) m.get("Status"));
-				b.setPendingDate((Date)m.get("pendingDate"));
-				b.setAckDate((Date)m.get("ackDate"));
-				b.setReceivedDate((Date)m.get("receivedDate"));
-				b.setPackedDate((Date)m.get("packedDate"));
-				
+				b.setStatus((int) m.get("Status"));
+				b.setPendingDate((Date) m.get("pendingDate"));
+				b.setAckDate((Date) m.get("ackDate"));
+				b.setReceivedDate((Date) m.get("receivedDate"));
+				b.setPackedDate((Date) m.get("packedDate"));
+
 				b.setProjectCode(projectCode);
 				b.setEnablePartLabel(false);
 				b.setEnableCaseReport(false);
@@ -288,68 +285,75 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 					b.setColorCode("#00FF00");
 					b.setEnablePartLabel(true);
 				} else if ((int) m.get("pick_label_scan") == 2) {
-					
+
 					if ((int) m.get("part_label_scan") == Integer.parseInt(b.getTotalNoOfPackingGroup())) {
 						b.setLabelStatus("Packed");
 						b.setColorCode("#0000FF");
 						b.setEnablePartLabel(true);
 						b.setEnableCaseReport(true);
-					}else {	
+					} else {
 						b.setLabelStatus("Received");
 						b.setColorCode("#964B00");
 						b.setEnablePartLabel(true);
-					}	
-//				} else if ((int) m.get("part_label_scan") == Integer.parseInt(b.getTotalNoOfPackingGroup())) {
-//					b.setLabelStatus("Packed");
-//					b.setColorCode("#0000FF");
-//					b.setEnablePartLabel(true);
-//					b.setEnableCaseReport(true);
+					}
+
 				} else if ((int) m.get("pick_label_scan") == 1) {
 					b.setLabelStatus("Acknowledge");
 					b.setColorCode("#FFA500");
 				}
-				//b.setEnablePartLabel((int) m.get("pick_label_scan") > 0);
+
 				b.setTotalPartScanned((int) m.get("part_label_scan") + "/" + b.getTotalNoOfPackingGroup());
-				
+
 				try {
-					b.setByteImage(getImageByPartNo(b.getPartNo()));
-					
+					b.setPicByte(getImageByPartNo(b.getPartNo()));
+
 				} catch (IOException e) {
-					
+
 					e.printStackTrace();
 				}
-				
+
 				plist.add(b);
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		return plist;
 	}
 
 	private byte[] getImageByPartNo(String partNo) throws IOException {
-		
+
 		String getProjectCode = env.getProperty("SELECT_IMAGE");
-		
-        Object[] inputs = new Object[] {partNo};
-        
-        byte[] data = null;
+
+		Object[] inputs = new Object[] { partNo };
+
+		byte[] data = null;
 		try {
 			data = jdbcTemplate.queryForObject(getProjectCode, inputs, byte[].class);
 		} catch (DataAccessException e) {
-			//do nothing
+			// do nothing
 		}
-		  if(data!=null) {
-			  return  Base64.decodeBase64(data);
-		  }
+		if (data != null) {
+			return Base64.decodeBase64(data);
+		}
 		return null;
-		
+
 	}
 
 	@Override
-	public void createBom(Bom bom) {
-		// TODO Auto-generated method stub
-
+	public int createBom(Bom bom) {
+		try {
+			if(bom.getBomId()!= 0 && !bom.isDeleteFlag()) {
+				return jdbcTemplate.update(env.getProperty("UPDATE_BOM"), getObject(bom, true));
+			}else if(bom.isDeleteFlag()) {
+				return jdbcTemplate.update(env.getProperty("DELETE_BOM"),  new Object[] {bom.getBomId()});
+			}else {
+				return jdbcTemplate.update(env.getProperty("INSERT_BOM"),  getObject(bom, false));
+			}
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 	@Override
@@ -361,9 +365,9 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 			Map<String, Object> param = new HashMap<String, Object>();
 			param.put("part_no_in", barcode);
 			param.put("Scan_Type_in", value);
-			
+
 			SqlParameterSource in = new MapSqlParameterSource().addValues(param);
-			 out = jdbcCall.execute(in);
+			out = jdbcCall.execute(in);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -391,7 +395,7 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 
 		SummaryDTO summary = null;
 		try {
-			summary = (SummaryDTO) jdbcTemplate.queryForObject(env.getProperty("select_itemById"), new Object[] { id },
+			summary = (SummaryDTO) jdbcTemplate.queryForObject(env.getProperty("SELECT_ITEMBYID"), new Object[] { id },
 					new BeanPropertyRowMapper<SummaryDTO>(SummaryDTO.class));
 		} catch (Exception e) {
 
@@ -404,10 +408,10 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	@Override
 	public void deleteItemMaster(String lot_ref_no) {
 		String SQL = "delete from item_master where lot_ref_no = ?";
-	      jdbcTemplate.update(SQL, lot_ref_no);
-	      return;
+		jdbcTemplate.update(SQL, lot_ref_no);
+		return;
 	}
-	
+
 	public Bom getBomJson(String bom) {
 		Bom it = new Bom();
 		ObjectMapper objMap = new ObjectMapper();
@@ -421,62 +425,398 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 
 	@Override
 	public void createCase(Bom c) {
-		
-		int ca =0;
+
+		int ca = 0;
 		try {
-			ca = (int) jdbcTemplate.queryForObject(env.getProperty("SELECT_CASE_ID"), new Object[] { c.getLot_ref_no(), c.getBomNo(), c.getPackingGroup() }, Integer.class);
-			 		
+			ca = (int) jdbcTemplate.queryForObject(env.getProperty("SELECT_CASE_ID"),
+					new Object[] { c.getLot_ref_no(), c.getBomNo(), c.getPackingGroup() }, Integer.class);
+
 		} catch (Exception e) {
-			
-	  } 
-		
-		try {
-		if(ca ==0) {
-	
-			jdbcTemplate.update(new PreparedStatementCreator() {
-				@Override
-				public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-					PreparedStatement ps = connection.prepareStatement(env.getProperty("INSERT_CASE"));
-					ps.setString(1, c.getLot_ref_no());
-					ps.setString(2, c.getBomNo());
-					ps.setString(3, c.getPackingGroup());
-					ps.setString(4, c.getNetWeight());
-					ps.setString(5, c.getGrossWeight());
-					return ps;
-				}
-			});
-		}else {
-			jdbcTemplate.update("UPDATE case_weight SET netweight = ?, grossweight = ?  WHERE lot_ref_no=? and bomno=? and packinggroup=? ", new Object[] {c.getNetWeight(), c.getGrossWeight(),  c.getLot_ref_no(), c.getBomNo(), c.getPackingGroup()});
-			
+
 		}
+
+		try {
+			if (ca == 0) {
+
+				jdbcTemplate.update(new PreparedStatementCreator() {
+					@Override
+					public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+						PreparedStatement ps = connection.prepareStatement(env.getProperty("INSERT_CASE"));
+						ps.setString(1, c.getLot_ref_no());
+						ps.setString(2, c.getBomNo());
+						ps.setString(3, c.getPackingGroup());
+						ps.setString(4, c.getNetWeight());
+						ps.setString(5, c.getGrossWeight());
+						return ps;
+					}
+				});
+			} else {
+				jdbcTemplate.update(
+						"UPDATE case_weight SET netweight = ?, grossweight = ?  WHERE lot_ref_no=? and bomno=? and packinggroup=? ",
+						new Object[] { c.getNetWeight(), c.getGrossWeight(), c.getLot_ref_no(), c.getBomNo(),
+								c.getPackingGroup() });
+
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-	  }
+		}
 	}
 
 	@Override
 	public Case getCase(Bom c) {
-		
-		return (Case) jdbcTemplate.queryForObject(env.getProperty("SELECT_CASE_ID"), new Object[] { c.getLot_ref_no(), c.getBomNo(), c.getPackingGroup() },
-		 		new BeanPropertyRowMapper(Case.class));
+
+		return (Case) jdbcTemplate.queryForObject(env.getProperty("SELECT_CASE_ID"),
+				new Object[] { c.getLot_ref_no(), c.getBomNo(), c.getPackingGroup() },
+				new BeanPropertyRowMapper(Case.class));
 	}
 
 	// uncompress the image bytes before returning it to the angular application
-			public static byte[] decompressBytes(byte[] data) {
-				Inflater inflater = new Inflater();
-				inflater.setInput(data);
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
-				byte[] buffer = new byte[1024];
-				try {
-					while (!inflater.finished()) {
-						int count = inflater.inflate(buffer);
-						outputStream.write(buffer, 0, count);
-					}
-					outputStream.close();
-				} catch (IOException ioe) {
-				} catch (DataFormatException e) {
-				}
-				return outputStream.toByteArray();
+	public static byte[] decompressBytes(byte[] data) {
+		Inflater inflater = new Inflater();
+		inflater.setInput(data);
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+		byte[] buffer = new byte[1024];
+		try {
+			while (!inflater.finished()) {
+				int count = inflater.inflate(buffer);
+				outputStream.write(buffer, 0, count);
 			}
+			outputStream.close();
+		} catch (IOException ioe) {
+		} catch (DataFormatException e) {
+		}
+		return outputStream.toByteArray();
+	}
+
+	@Override
+	public List<Bom> getBomByIdForLable(String lotRefNo, String bomId) {
+
+		String sql = null;
+		String id = null;
+		List<Bom> response = new ArrayList<>();
+		// picklabel
+		if (lotRefNo != null) {
+			sql = env.getProperty("SELECT_BOM_IMAGE");
+			id = lotRefNo;
+		}
+		// partlabel
+		if (bomId != null) {
+			sql = env.getProperty("SELECT_BOM_BYID");
+			id = bomId;
+		}
+
+		List<Bom> item = null;
+		try {
+			item = jdbcTemplate.query(sql, new Object[] { id }, new BeanPropertyRowMapper(Bom.class));
+			
+			if(bomId != null) {
+				if(Integer.parseInt(item.get(0).getTotalNoOfPackingGroup()) > 0) {
+					for(int i =0; i<Integer.parseInt(item.get(0).getTotalNoOfPackingGroup()); i++) {
+						Bom b = new Bom();
+						b.setBomId((int) item.get(0).getBomId());
+						b.setLot_ref_no((String) item.get(0).getLot_ref_no());
+						b.setPartNo((String) item.get(0).getPartNo());
+						b.setPartDescription((String) item.get(0).getPartDescription());
+						b.setVersion((String) item.get(0).getVersion());
+						b.setStLoction((String) item.get(0).getStLoction());
+						b.setValidity((String) item.get(0).getValidity());
+						b.setCatDescription((String) item.get(0).getCatDescription());
+						b.setQtyRequired((String) item.get(0).getQtyRequired());
+						b.setQtyLot((String) item.get(0).getQtyLot());
+						b.setPrimaryNo((String) item.get(0).getPrimaryNo());
+						b.setSecondaryNo((String) item.get(0).getSecondaryNo());
+						b.setPackCode((String) item.get(0).getPackCode());
+						b.setPackQty((String) item.get(0).getPackQty());
+						b.setPackingGroup((String) item.get(0).getPackingGroup());
+						b.setTotalNoOfPackingGroup((String) item.get(0).getTotalNoOfPackingGroup());
+						b.setMixGroup((String) item.get(0).getMixGroup());
+						b.setMix((String) item.get(0).getMix());
+						b.setBomNo((String) item.get(0).getBomNo());
+						b.setCaseMap((String) item.get(0).getCaseMap());
+						b.setImages((String) item.get(0).getImages());
+						b.setCreatedBy((int) item.get(0).getCreatedBy());
+						b.setCreatedDate((Date) item.get(0).getCreatedDate());
+						b.setModifiedBy((int) item.get(0).getModifiedBy());
+						b.setModifiedDate((Date) item.get(0).getModifiedDate());
+						b.setStatus((int) item.get(0).getStatus());
+						b.setPendingDate((Date) item.get(0).getPendingDate());
+						b.setAckDate((Date) item.get(0).getAckDate());
+						b.setReceivedDate((Date) item.get(0).getReceivedDate());
+						b.setPackedDate((Date) item.get(0).getPackedDate());
+						b.setBarCodeNo(item.get(0).getPartNo().replaceAll("\\s", "")+ item.get(0).getBomId()+"P@"+(i+1));
+						b.setBomSlNo(i+1+"-"+item.get(0).getTotalNoOfPackingGroup());
+						response.add(b);
+					}
+					}
+				return response;
+			}
+			
+		} catch (DataAccessException e) {
+
+			e.printStackTrace();
+		}
+		return item;
+	}
+
+	@Override
+	public ResponseDTO getBomById(PartRequestDTO request) {
+		List<Bom> plist = new ArrayList<>();
+		List<Bom> dto = new ArrayList<>();
+		String getProjectCode = env.getProperty("SELECT_PROJECT_CODE");
+		Object[] inputs = new Object[] { request.getKey() };
+
+		ResponseDTO response = new ResponseDTO();
+		if (request.getSortByColumn().isEmpty()) {
+			request.setSortByColumn("CAST(bomNo as UNSIGNED)");
+			request.setSortByMode("asc");
+		}else if(request.getSortByColumn().equalsIgnoreCase("bomNo")) {
+			request.setSortByColumn("CAST(bomNo as UNSIGNED)");
+			
+		}else if(request.getSortByColumn().equalsIgnoreCase("partNo")) {
+			request.setSortByColumn("part_no");
+		}
+		String defaultQuery = null;
+		if(!request.getSearchValue().isEmpty()) {
+			defaultQuery = getSearchDefaultQery(request);
+		}else {
+			defaultQuery = getDefaultQery(request);
+		}
+		Integer count = 0;
+		try {
+
+			String projectCode = jdbcTemplate.queryForObject(getProjectCode, inputs, String.class);
+
+			dto = jdbcTemplate.query(env.getProperty("SELECT_BOM") + defaultQuery, inputs,
+					new BeanPropertyRowMapper<Bom>(Bom.class));
+			
+			 count = jdbcTemplate.queryForObject(env.getProperty("COUNT_BOM"), inputs, Integer.class);
+
+			dto.forEach(m -> {
+				Bom b = new Bom();
+				
+				b.setBomId((int) m.getBomId());
+				b.setLot_ref_no((String) m.getLot_ref_no());
+				b.setPartNo((String) m.getPartNo());
+				b.setPartDescription((String) m.getPartDescription());
+				b.setVersion((String) m.getVersion());
+				b.setStLoction((String) m.getStLoction());
+				b.setValidity((String) m.getValidity());
+				b.setCatDescription((String) m.getCatDescription());
+				b.setQtyRequired((String) m.getQtyRequired());
+				b.setQtyLot((String) m.getQtyLot());
+				b.setPrimaryNo((String) m.getPrimaryNo());
+				b.setSecondaryNo((String) m.getSecondaryNo());
+				b.setPackCode((String) m.getPackCode());
+				b.setPackQty((String) m.getPackQty());
+				b.setPackingGroup((String) m.getPackingGroup());
+				b.setTotalNoOfPackingGroup((String) m.getTotalNoOfPackingGroup());
+				b.setMixGroup((String) m.getMixGroup());
+				b.setMix((String) m.getMix());
+				b.setBomNo((String) m.getBomNo());
+				b.setCaseMap((String) m.getCaseMap());
+				b.setImages((String) m.getImages());
+				b.setCreatedBy((int) m.getCreatedBy());
+				b.setCreatedDate((Date) m.getCreatedDate());
+				b.setModifiedBy((int) m.getModifiedBy());
+				b.setModifiedDate((Date) m.getModifiedDate());
+				b.setStatus((int) m.getStatus());
+				b.setPendingDate((Date) m.getPendingDate());
+				b.setAckDate((Date) m.getAckDate());
+				b.setReceivedDate((Date) m.getReceivedDate());
+				b.setPackedDate((Date) m.getPackedDate());
+				
+				b.setProjectCode(projectCode);
+				b.setEnablePartLabel(false);
+				b.setEnableCaseReport(false);
+				if ((int) m.getPick_label_scan() == 0) {
+					b.setLabelStatus("Pending");
+					b.setColorCode("#FFFF00");
+				} else if ((int) m.getPart_label_scan() > 0
+						&& (int) m.getPart_label_scan() < Integer.parseInt(m.getTotalNoOfPackingGroup())) {
+					b.setLabelStatus("Work In Progress");
+					b.setColorCode("#00FF00");
+					b.setEnablePartLabel(true);
+				} else if ((int) m.getPick_label_scan() == 2) {
+
+					if ((int) m.getPart_label_scan() == Integer.parseInt(m.getTotalNoOfPackingGroup())) {
+						b.setLabelStatus("Packed");
+						b.setColorCode("#0000FF");
+						b.setEnablePartLabel(true);
+						b.setEnableCaseReport(true);
+					} else {
+						b.setLabelStatus("Received");
+						b.setColorCode("#964B00");
+						b.setEnablePartLabel(true);
+					}
+
+				} else if ((int) m.getPick_label_scan() == 1) {
+					b.setLabelStatus("Acknowledge");
+					b.setColorCode("#FFA500");
+				}
+
+				b.setTotalPartScanned((int) m.getPart_label_scan() + "/" + m.getTotalNoOfPackingGroup());
+
+				
+				plist.add(b);
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		response.setData(plist);
+		response.setTotalElements(count);
+		if (!response.getData().isEmpty()) {
+			response.setNoData(false);
+		}
+		return response;
+	}
+
+	private String getSearchDefaultQery(PartRequestDTO request) {
+		if(!request.getSearchValue().get(0).isEmpty() && !request.getSearchValue().get(1).isEmpty()) {
+			return (String) " and part_no like '%"+request.getSearchValue().get(0)+"%' and  bomNo like '%"+request.getSearchValue().get(1)+"%' order by " + request.getSortByColumn();
+		}else if(!request.getSearchValue().get(0).isEmpty()) {
+			return (String) " and part_no like '%"+request.getSearchValue().get(0)+"%' order by " + request.getSortByColumn();
+		}else if(!request.getSearchValue().get(1).isEmpty()) {
+			return (String) " and bomNo like '%"+request.getSearchValue().get(1)+"%' order by " + request.getSortByColumn();
+		}
+		return null;
+		
+	}
+
+	private String getDefaultQery(PartRequestDTO request) {
+		return (String) " order by " + request.getSortByColumn() + " " + request.getSortByMode() + " LIMIT "
+				+ request.getLimit() + " OFFSET " + request.getOffset();
+	}
+
+	@Override
+	public Map<String,byte[]> getImage(String lot_ref_no, String packingGroup) {
+		Map<String, byte[]> map = new HashMap<>();
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("name", lot_ref_no+"-"+packingGroup);
+		Object[] inputs = new Object[] { lot_ref_no+"-"+packingGroup };
+		List<ImageModel> dto = jdbcTemplate.query(env.getProperty("SELECT_CASE_IMAGE_NAME"), new String[]{"%"+lot_ref_no+"-"+packingGroup+"%"},
+				new BeanPropertyRowMapper<ImageModel>(ImageModel.class));
+		
+		for(ImageModel im: dto) {
+			map.put(im.getName(), im.getPicByte());
+		}
+		
+		return map;
+	}
+
+	@Override
+	public Bom checkPickLableScanData(String value) {
+		Object[] inputs = new Object[] { value };
+		Bom id = null;
+		try {
+			id = jdbcTemplate.queryForObject(env.getProperty("SELECT_BOMID_PICK"), inputs, new BeanPropertyRowMapper<Bom>(Bom.class));
+		} catch (DataAccessException e) {
+			
+		}
+		return id;
+	}
+
+	@Override
+	public Bom checkPartLableScanData(String id) {
+		Object[] inputs = new Object[] { id };
+		Bom bom = null;
+		try {
+			bom = jdbcTemplate.queryForObject(env.getProperty("SELECT_BOMID_PART"), inputs, new BeanPropertyRowMapper<Bom>(Bom.class));
+		} catch (DataAccessException e) {
+			
+		}
+		return bom;
+	}
 	
+	public Object[] getObject(Bom bom, boolean flag) {
+		if(!flag) {
+		return new Object[] {
+				bom.getLot_ref_no(),
+				bom.getPartNo(),
+				bom.getPartDescription(),
+				bom.getVersion(),
+				bom.getStLoction(),
+				bom.getValidity(),
+				bom.getCatDescription(),
+				bom.getQtyRequired(),
+
+				bom.getQtyLot(),
+				 bom.getPrimaryNo(),
+				 bom.getSecondaryNo(),
+				 bom.getPackCode(),
+
+				 bom.getPackQty(),
+				 bom.getPackingGroup(),
+				 bom.getTotalNoOfPackingGroup(),
+				 bom.getMixGroup(),
+
+				 bom.getMix(),
+				 bom.getBomNo(),
+				 bom.getCaseMap(),
+				 bom.getImages(),
+				 bom.getCreatedBy()
+				
+				
+     };
+		}else {
+			return new Object[] {
+					bom.getLot_ref_no(),
+					bom.getPartNo(),
+					bom.getPartDescription(),
+					bom.getVersion(),
+					bom.getStLoction(),
+					bom.getValidity(),
+					bom.getCatDescription(),
+					bom.getQtyRequired(),
+
+					bom.getQtyLot(),
+					 bom.getPrimaryNo(),
+					 bom.getSecondaryNo(),
+					 bom.getPackCode(),
+
+					 bom.getPackQty(),
+					 bom.getPackingGroup(),
+					 bom.getTotalNoOfPackingGroup(),
+					 bom.getMixGroup(),
+
+					 bom.getMix(),
+					 bom.getBomNo(),
+					 bom.getCaseMap(),
+					 bom.getCreatedBy(),
+					
+					bom.getBomId()
+		};
+		}
+		
+	}
+
+	@Override
+	public int itemUpdate(Item request) {
+		try {
+			if(request.getItem_id()!= 0 && !request.isDeleteFlag()) {
+				return jdbcTemplate.update(env.getProperty("UPDATE_ITEM"), getObject(request));
+			}else if(request.isDeleteFlag()) {
+				return jdbcTemplate.update(env.getProperty("DELETE_ITEM"),  new Object[] {request.getItem_id()});
+			}
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	
+
+	private Object[] getObject(Item request) {
+		return new Object[] {
+				request.getCustomer_code(),
+				request.getProject_code(),
+				request.getOrg_country_id(),
+				request.getPacking_type(),
+				request.getLot_size(),
+				request.getContainers().toString(),
+				
+				request.getItem_id()
+	};
+	}
+
 }

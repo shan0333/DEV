@@ -23,7 +23,7 @@ public class Item {
 
 	private List<?> containers;
 
-	private int CreatedBy;
+	private int CreatedBy =1;
 
 	private Date CreatedDate;
 
@@ -31,7 +31,9 @@ public class Item {
 
 	private Date ModifiedDate;
 
-	private int Status;
+	private int Status =1;
+	
+	private boolean deleteFlag;
 
 	public int getItem_id() {
 		return item_id;
@@ -143,6 +145,14 @@ public class Item {
 
 	public void setContainers(List<?> containers) {
 		this.containers = containers;
+	}
+
+	public boolean isDeleteFlag() {
+		return deleteFlag;
+	}
+
+	public void setDeleteFlag(boolean deleteFlag) {
+		this.deleteFlag = deleteFlag;
 	}
 
 	

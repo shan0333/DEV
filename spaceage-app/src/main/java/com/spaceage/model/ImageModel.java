@@ -4,12 +4,17 @@ public class ImageModel {
 	private Long id;
 	private String name;
 	private String type;
-	private String picByte;
+	private byte[] picByte;
+	private String imgString;
 
-	public ImageModel(String name, String type, String picByte) {
+	public ImageModel(String name, String type, String imgString) {
 		this.name = name;
 		this.type = type;
-		this.picByte = picByte;
+		this.setImgString(imgString);
+	}
+
+	public ImageModel() {
+		super();
 	}
 
 	public Long getId() {
@@ -36,12 +41,20 @@ public class ImageModel {
 		this.type = type;
 	}
 
-	public String getPicByte() {
+	public byte[] getPicByte() {
 		return picByte;
 	}
 
-	public void setPicByte(String picByte) {
+	public void setPicByte(byte[] picByte) {
 		this.picByte = picByte;
+	}
+
+	public String getImgString() {
+		return imgString;
+	}
+
+	public void setImgString(String imgString) {
+		this.imgString = imgString;
 	}
 
 }

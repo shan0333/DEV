@@ -1,6 +1,5 @@
 package com.spaceage.model;
 
-import java.awt.image.BufferedImage;
 import java.util.Date;
 
 public class Bom {
@@ -47,7 +46,7 @@ public class Bom {
 
 	private String images;
 
-	private long createdBy;
+	private long createdBy=1;
 
 	private Date createdDate;
 
@@ -55,7 +54,7 @@ public class Bom {
 
 	private Date modifiedDate;
 
-	private boolean status;
+	private int status = 1;
 
 	private String barCodeNo;
 
@@ -65,9 +64,9 @@ public class Bom {
 	
 	private String colorCode;
 	
-	private String pick_label_scan;
+	private int pick_label_scan;
 	
-	private String part_label_scan;
+	private int part_label_scan;
 	
 	private boolean enablePartLabel;
 	
@@ -89,7 +88,14 @@ public class Bom {
 	
 	private Date packedDate;
 	
-	private byte[] byteImage;
+	private byte[] picByte;
+	
+	private String lot_size;
+	
+	private Integer totalElements;
+	
+	private boolean deleteFlag;
+	
 
 	public Bom() {
 		super();
@@ -314,14 +320,6 @@ public class Bom {
 		this.modifiedDate = modifiedDate;
 	}
 
-	public boolean getStatus() {
-		return status;
-	}
-
-	public void setStatus(boolean status) {
-		this.status = status;
-	}
-
 	public String getBomSlNo() {
 		return bomSlNo;
 	}
@@ -362,19 +360,19 @@ public class Bom {
 		this.colorCode = colorCode;
 	}
 
-	public String getPick_label_scan() {
+	public int getPick_label_scan() {
 		return pick_label_scan;
 	}
 
-	public void setPick_label_scan(String pick_label_scan) {
+	public void setPick_label_scan(int pick_label_scan) {
 		this.pick_label_scan = pick_label_scan;
 	}
 
-	public String getPart_label_scan() {
+	public int getPart_label_scan() {
 		return part_label_scan;
 	}
 
-	public void setPart_label_scan(String part_label_scan) {
+	public void setPart_label_scan(int part_label_scan) {
 		this.part_label_scan = part_label_scan;
 	}
 
@@ -458,13 +456,46 @@ public class Bom {
 		this.packedDate = packedDate;
 	}
 
-	public byte[] getByteImage() {
-		return byteImage;
+	public byte[] getPicByte() {
+		return picByte;
 	}
 
-	public void setByteImage(byte[] byteImage) {
-		this.byteImage = byteImage;
+	public void setPicByte(byte[] picByte) {
+		this.picByte = picByte;
 	}
 
+	public String getLot_size() {
+		return lot_size;
+	}
+
+	public void setLot_size(String lot_size) {
+		this.lot_size = lot_size;
+	}
+
+	public Integer getTotalElements() {
+		return totalElements;
+	}
+
+	public void setTotalElements(Integer totalElements) {
+		this.totalElements = totalElements;
+	}
+
+	public boolean isDeleteFlag() {
+		return deleteFlag;
+	}
+
+	public void setDeleteFlag(boolean deleteFlag) {
+		this.deleteFlag = deleteFlag;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	
 	
 }

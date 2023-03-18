@@ -1,8 +1,6 @@
 package com.spaceage.controller;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -33,9 +31,6 @@ public class ImageUploadController {
 	@PostMapping("/imgupload")
 	public ResponseEntity<ImageModel> uplaodImage(@RequestParam("imageFile") MultipartFile file) throws IOException {
 
-		//System.out.println("Original Image Byte Size - " + file.getBytes().length);
-		
-		
 		String imageString = Base64.encodeBase64String(file.getBytes());
 		
 		ImageModel img = new ImageModel(ReportUtil.removeFileExt(file.getOriginalFilename(),  file.getContentType()), file.getContentType(),
